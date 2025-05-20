@@ -1,3 +1,2 @@
-# my_wellness
-
-Theo Dõi Sức Khỏe
+# MyWellness
+App Theo Dõi Sức Khỏe
