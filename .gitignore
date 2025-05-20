@@ -6,6 +6,7 @@
 *.swp
 .buildlog/
 .history
+<<<<<<< HEAD
 .idea/
 *.iml
 *.ipr
@@ -16,6 +17,9 @@ captures/
 .externalNativeBuild/
 .gradle/
 local.properties
+=======
+
+>>>>>>> b03133881e9df26dff31ad5882146f2fcc0eb478
 
 
 # Flutter repo-specific
