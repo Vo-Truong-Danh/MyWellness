@@ -6,7 +6,16 @@
 *.swp
 .buildlog/
 .history
-
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.gradle/
+local.properties
 
 
 # Flutter repo-specific
