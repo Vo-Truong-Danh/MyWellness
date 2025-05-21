@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_wellness/src/screens/home/dialogaddhabit.dart';
 
 class Homepage extends StatelessWidget {
+  const Homepage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,10 +76,22 @@ class Homepage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          showDialog(
+            useSafeArea: true,
+            animationStyle: AnimationStyle(
+              curve: Curves.fastLinearToSlowEaseIn,
+              duration: Duration(milliseconds: 400),
+            ),
+            context: context,
+            builder: (context) {
+              return AddHabitDialog();
+            },
+          );
+        },
         backgroundColor: Color(0xFF30C9B7),
         tooltip: 'Thêm mới',
+        child: Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
@@ -135,12 +150,8 @@ class Homepage extends StatelessWidget {
                   CircularProgressIndicator(
                     value: currentProgress,
                     strokeWidth: 8,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.redAccent,
-                    ),
-                    backgroundColor:
-                        Colors
-                            .transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
+                    backgroundColor: Colors.transparent,
                   ),
                   Center(
                     child: Container(
