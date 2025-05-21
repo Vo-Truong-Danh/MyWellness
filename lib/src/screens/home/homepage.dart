@@ -83,6 +83,9 @@ class Homepage extends StatelessWidget {
   }
 
   Widget _buildStepsCard() {
+    // tiến trình (0.0 đến 1.0)
+    double currentProgress = 0.35;
+
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
@@ -102,11 +105,7 @@ class Homepage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.track_changes,
-                color: Colors.white,
-                size: 29,
-              ), // Icon bước chân
+              Icon(Icons.track_changes, color: Colors.white, size: 29),
               SizedBox(width: 8),
               Text(
                 'DailyGoal',
@@ -120,41 +119,54 @@ class Homepage extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Center(
-            child: Container(
+            child: SizedBox(
               width: 130,
               height: 130,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
-                  width: 8,
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(
-                      0.2,
-                    ), // Vòng tròn mờ bên trong
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.8),
-                      width: 2,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CircularProgressIndicator(
+                    value: 1.0,
+                    strokeWidth: 8,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.white.withOpacity(0.3),
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '35%',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
+                  CircularProgressIndicator(
+                    value: currentProgress,
+                    strokeWidth: 8,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.redAccent,
+                    ),
+                    backgroundColor:
+                        Colors
+                            .transparent,
+                  ),
+                  Center(
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.2),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.8),
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '35%', // % hòàn thành mục tiêu hằng ngày
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
