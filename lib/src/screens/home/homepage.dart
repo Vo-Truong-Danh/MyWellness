@@ -18,27 +18,48 @@ class Homepage extends StatelessWidget {
                   Expanded(
                     flex: 1, // Chiếm 1 phần không gian
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween, // Bạn có thể thử bỏ nếu các card không đều nhau
                       children: [
                         _buildSmallInfoCard(
                           icon: Icons.favorite,
                           iconColor: Colors.redAccent,
                           label: ' HR',
-                          value: '80 BPM',
+                          value: Text(
+                            '78 bpm',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                         SizedBox(height: 12),
                         _buildSmallInfoCard(
                           icon: Icons.scale,
                           iconColor: Colors.blueAccent,
                           label: 'Weight',
-                          value: '69 Kg',
+                          value: Text(
+                            '69 kg',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                         SizedBox(height: 12),
                         _buildSmallInfoCard(
-                          icon: Icons.track_changes,
+                          icon: Icons.local_fire_department,
                           iconColor: Colors.orangeAccent,
-                          label: 'Mục tiêu',
-                          value: '0%',
+                          label: 'Kcal',
+                          value: Text(
+                            '520 ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ],
                     ),
@@ -65,7 +86,7 @@ class Homepage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Color(0xFF30C9B7), // Màu teal
+        color: Color(0xFF30C9B7),
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(
@@ -82,13 +103,13 @@ class Homepage extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.local_fire_department,
+                Icons.track_changes,
                 color: Colors.white,
                 size: 29,
               ), // Icon bước chân
               SizedBox(width: 8),
               Text(
-                'Kcal',
+                'DailyGoal',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -125,10 +146,10 @@ class Homepage extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      '350',
+                      '35%',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 48,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -137,7 +158,7 @@ class Homepage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 29),
         ],
       ),
     );
@@ -147,7 +168,7 @@ class Homepage extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required String label,
-    required String value,
+    required Text value, // value là một Text widget
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -164,7 +185,6 @@ class Homepage extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,14 +201,8 @@ class Homepage extends StatelessWidget {
               ),
             ],
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+          SizedBox(width: 8),
+          Expanded(child: value),
         ],
       ),
     );
@@ -214,7 +228,7 @@ class Homepage extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Color(0xFF30C9B7).withOpacity(0.2), // Màu teal nhạt
+              color: Color(0xFF30C9B7).withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(

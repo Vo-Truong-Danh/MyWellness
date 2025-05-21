@@ -9,7 +9,7 @@ class Workout_Tracking extends StatelessWidget{
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Flutter Workout Tracking',
+            'Flutter Setting And Accout',
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
           ),
         ],
