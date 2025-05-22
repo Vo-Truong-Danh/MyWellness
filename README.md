@@ -23,11 +23,10 @@ Chúng tôi tin rằng việc theo dõi sát sao sẽ giúp bạn có những đ
 * [ ] Tính năng B (ví dụ: Ghi nhật ký tập luyện chi tiết)
 * [ ] Tính năng C (ví dụ: Thống kê và biểu đồ trực quan)
 * [ ] Tính năng D (ví dụ: Nhắc nhở uống nước, tập thể dục)
-* ...
 
 ## 📸 Ảnh chụp màn hình (Screenshots)
 
-*(Nơi bạn sẽ thêm các hình ảnh demo giao diện ứng dụng khi hoàn thiện)*
+```(Nơi bạn sẽ thêm các hình ảnh demo giao diện ứng dụng khi hoàn thiện)```
 
 ## 🚀 Bắt đầu (Getting Started)
 
@@ -35,9 +34,12 @@ Hướng dẫn cách cài đặt và chạy dự án trên máy tính của bạ
 
 ### Điều kiện tiên quyết
 
-* Flutter SDK (phiên bản x.y.z trở lên)
-* Một IDE (như Android Studio, VS Code)
-* ...
+1. Flutter SDK Phiên bản mới nhất, bạn có thể download ở link dưới đây
+    * Link gốc : https://docs.flutter.dev/get-started/install/windows/mobile
+    
+2. JDK phiên bản 17 trở lên, bạn có thể download ở 1 trong 2 link dưới đây
+    * Link gốc : https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
+    * Link ở Open JDK : https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
 
 ### Cài đặt
 
@@ -73,8 +75,8 @@ Hướng dẫn cách cài đặt và chạy dự án trên máy tính của bạ
 
 ## 📝 Giấy phép (License)
 
-*(Thông tin về giấy phép của dự án, ví dụ: MIT License)*
+```(Thông tin về giấy phép của dự án, ví dụ: MIT License)*```
 
 ---
 
-Hãy nhớ cập nhật tệp `README.md` này thường xuyên khi dự án của bạn có thêm các tính năng mới hoặc thay đổi quan trọng nhé!
+```Hãy nhớ cập nhật tệp `README.md` này thường xuyên khi dự án của bạn có thêm các tính năng mới hoặc thay đổi quan trọng nhé!```
