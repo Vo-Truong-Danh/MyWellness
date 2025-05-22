@@ -24,21 +24,33 @@ class MainApp extends State<MyApp> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xFF30C9B7),
-          leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu,size: 30,)),
+          leading: IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.menu, size: 30,color: Colors.white,),
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 "Health Data",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 21,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
           actions: [
-            Icon(Icons.account_circle,size: 40,),
-            SizedBox(width: 20,)
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.update),
+              iconSize: 30,
+              color: Colors.white,
+              tooltip: 'Cập nhật thể trạng hiện tại',
+            ),
           ],
-          toolbarHeight: 70,
+          toolbarHeight: 60,
         ),
         body: IndexedStack(index: _index, children: _option),
 
@@ -63,7 +75,7 @@ class MainApp extends State<MyApp> {
               _index = value;
             });
           },
-          selectedItemColor: Color(0xFF30C9B7), // Màu của mục đang được chọn
+          selectedItemColor: Color(0xFF30C9B7),
           unselectedItemColor: Colors.grey,
         ),
       ),

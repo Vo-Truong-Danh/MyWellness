@@ -34,11 +34,9 @@ class Homepage extends State<HomePage> {
         if (mounted) {
           showDialog(
             context: context,
-            builder:
-                (BuildContext context) => Canhbaohr(HR: Hr),
+            builder: (BuildContext context) => Canhbaohr(HR: Hr),
             barrierDismissible: true,
           );
-
         }
       });
     }
@@ -46,9 +44,8 @@ class Homepage extends State<HomePage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           showDialog(
-              context: context,
-              builder:
-                  (BuildContext context) => NguyHiemHR(HR: Hr),
+            context: context,
+            builder: (BuildContext context) => NguyHiemHR(HR: Hr),
             barrierDismissible: true,
           );
         }
@@ -238,6 +235,7 @@ class Homepage extends State<HomePage> {
       ),
     );
   }
+
   Widget _buildSmallInfoCard({
     required IconData icon,
     required Color iconColor,
@@ -245,9 +243,12 @@ class Homepage extends State<HomePage> {
     required Text value,
     VoidCallback? onTap, // Thêm tham số onTap
   }) {
-    return InkWell( // Bọc bằng InkWell để có hiệu ứng gợn sóng và xử lý onTap
+    return InkWell(
+      // Bọc bằng InkWell để có hiệu ứng gợn sóng và xử lý onTap
       onTap: onTap, // Gán callback
-      borderRadius: BorderRadius.circular(15.0), // Để hiệu ứng gợn sóng khớp với bo góc của Container
+      borderRadius: BorderRadius.circular(
+        15.0,
+      ), // Để hiệu ứng gợn sóng khớp với bo góc của Container
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
@@ -287,6 +288,7 @@ class Homepage extends State<HomePage> {
       ),
     );
   }
+
   Widget _buildSportsCard() {
     return Container(
       padding: const EdgeInsets.all(16.0),
