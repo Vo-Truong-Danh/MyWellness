@@ -86,7 +86,6 @@ class Canhbaohr extends StatelessWidget {
   }
 }
 
-
 class NguyHiemHR extends StatelessWidget {
   final double HR;
 
@@ -171,4 +170,3 @@ class NguyHiemHR extends StatelessWidget {
     );
   }
 }
-
