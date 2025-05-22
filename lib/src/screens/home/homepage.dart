@@ -1,8 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
 import 'package:my_wellness/src/screens/home/dialogaddhabit.dart';
+import 'package:my_wellness/src/widget/canhbaohr.dart';
 
-class Homepage extends StatelessWidget {
-  const Homepage({super.key});
+class HomePage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return Homepage();
+  }
+}
+
+class Homepage extends State<HomePage> {
+  static double Hr = 189; // Giá trị HR hiện tại
+  Color ColorHr = identify_3_colors_exception(
+    Hr,
+    [60, 100],
+    [50, 59],
+    [20, 49],
+    [120, 200],
+    Colors.red,
+    Colors.orange,
+  );
+
+  static double Weight = 69; // Giá trị Weight hiện tại
+  double Kcal = 520; // Giá trị Kcal hiện tại
+  double DailyGoal = 0.35; // % Hoàn thành các hoạt động hiện tại
+
+  @override
+  void initState() {
+    super.initState();
+    if (ColorHr == Colors.orange) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder:
+                (BuildContext context) => Canhbaohr(HR: Hr),
+            barrierDismissible: true,
+          );
+
+        }
+      });
+    }
+    if (ColorHr == Colors.red) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showDialog(
+              context: context,
+              builder:
+                  (BuildContext context) => NguyHiemHR(HR: Hr),
+            barrierDismissible: true,
+          );
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +71,19 @@ class Homepage extends StatelessWidget {
                   Expanded(flex: 2, child: _buildStepsCard()),
                   SizedBox(width: 16),
                   Expanded(
-                    flex: 1, // Chiếm 1 phần không gian
+                    flex: 1,
                     child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween, // Bạn có thể thử bỏ nếu các card không đều nhau
                       children: [
                         _buildSmallInfoCard(
                           icon: Icons.favorite,
                           iconColor: Colors.redAccent,
                           label: ' HR',
                           value: Text(
-                            '78 bpm',
+                            '${Hr.toInt()} bpm',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
+                              color: ColorHr,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -79,10 +131,10 @@ class Homepage extends StatelessWidget {
         onPressed: () {
           showDialog(
             useSafeArea: true,
-            animationStyle: AnimationStyle(
-              curve: Curves.fastLinearToSlowEaseIn,
-              duration: Duration(milliseconds: 400),
-            ),
+            // animationStyle: AnimationStyle(
+            //   curve: Curves.fastLinearToSlowEaseIn,
+            //   duration: Duration(milliseconds: 400),
+            // ),
             context: context,
             builder: (context) {
               return AddHabitDialog();
@@ -186,51 +238,55 @@ class Homepage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildSmallInfoCard({
     required IconData icon,
     required Color iconColor,
     required String label,
-    required Text value, // value là một Text widget
+    required Text value,
+    VoidCallback? onTap, // Thêm tham số onTap
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: iconColor, size: 22),
-              SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w500,
+    return InkWell( // Bọc bằng InkWell để có hiệu ứng gợn sóng và xử lý onTap
+      onTap: onTap, // Gán callback
+      borderRadius: BorderRadius.circular(15.0), // Để hiệu ứng gợn sóng khớp với bo góc của Container
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          // ... (Nội dung còn lại của Row giữ nguyên)
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: iconColor, size: 22),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(width: 8),
-          Expanded(child: value),
-        ],
+              ],
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: value),
+          ],
+        ),
       ),
     );
   }
-
   Widget _buildSportsCard() {
     return Container(
       padding: const EdgeInsets.all(16.0),

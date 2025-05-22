@@ -15,7 +15,7 @@ class MainApp extends State<MyApp> {
   @override
   int _index = 0;
   static List<Widget> _option = <Widget>[
-    Homepage(),
+    HomePage(),
     Nutrition_Tracking(),
     Workout_Tracking(),
   ];
