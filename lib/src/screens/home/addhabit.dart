@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/screens/home/createhabitdrinkwater.dart';
 
-class ButtonHabit extends StatelessWidget {
+class HabitButton extends StatelessWidget {
   final String fileImage;
   final String title;
   final Color? backgroundColor;
   final VoidCallback? onPressed;
-  const ButtonHabit({
+  const HabitButton({
     super.key,
     required this.fileImage,
     required this.title,
@@ -39,21 +39,19 @@ class ButtonHabit extends StatelessWidget {
   }
 }
 
-class AddHabitDialog extends StatefulWidget {
-  const AddHabitDialog({super.key});
+class AddHabitBottomSheet extends StatefulWidget {
+  const AddHabitBottomSheet({super.key});
 
   @override
-  State<AddHabitDialog> createState() => _AddHabitDialog();
+  State<AddHabitBottomSheet> createState() => _AddHabitBottomSheet();
 }
 
-class _AddHabitDialog extends State<AddHabitDialog> {
+class _AddHabitBottomSheet extends State<AddHabitBottomSheet> {
   @override
   Widget build(BuildContext contextAddHabit) {
-    return Dialog(
-      alignment: Alignment.bottomCenter,
-      backgroundColor: const Color.fromARGB(255, 236, 235, 235),
+    return SizedBox(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
         child: Column(
           spacing: 20.0,
           mainAxisSize: MainAxisSize.min,
@@ -117,14 +115,14 @@ class _AddHabitDialog extends State<AddHabitDialog> {
                                 SizedBox(width: 48.0),
                               ],
                             ),
-                            ButtonHabit(
+                            HabitButton(
                               fileImage: "assets/images/water_glass.png",
                               title: "Drink Water",
                               backgroundColor: const Color.fromARGB(
                                 255,
-                                99,
-                                206,
-                                255,
+                                62,
+                                176,
+                                230,
                               ),
                               onPressed:
                                   () => Navigator.push(
@@ -135,7 +133,7 @@ class _AddHabitDialog extends State<AddHabitDialog> {
                                     ),
                                   ),
                             ),
-                            ButtonHabit(
+                            HabitButton(
                               fileImage: "assets/images/icon_star.png",
                               title: "New Habit",
                               backgroundColor: Color.fromARGB(
@@ -145,7 +143,7 @@ class _AddHabitDialog extends State<AddHabitDialog> {
                                 148,
                               ),
                             ),
-                            ButtonHabit(
+                            HabitButton(
                               fileImage: "assets/images/icon_star.png",
                               title: "New Habit",
                               backgroundColor: Color.fromARGB(
@@ -155,7 +153,7 @@ class _AddHabitDialog extends State<AddHabitDialog> {
                                 148,
                               ),
                             ),
-                            ButtonHabit(
+                            HabitButton(
                               fileImage: "assets/images/icon_star.png",
                               title: "New Habit",
                               backgroundColor: Color.fromARGB(
@@ -165,7 +163,7 @@ class _AddHabitDialog extends State<AddHabitDialog> {
                                 148,
                               ),
                             ),
-                            ButtonHabit(
+                            HabitButton(
                               fileImage: "assets/images/icon_star.png",
                               title: "New Habit",
                               backgroundColor: Color.fromARGB(
