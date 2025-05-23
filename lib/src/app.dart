@@ -12,48 +12,20 @@ class MyApp extends StatefulWidget {
 }
 
 class MainApp extends State<MyApp> {
-  @override
   int _index = 0;
+
+  @override
   static List<Widget> _option = <Widget>[
     HomePage(),
     Nutrition_Tracking(),
     Workout_Tracking(),
   ];
+
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF30C9B7),
-          leading: IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.menu, size: 30,color: Colors.white,),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Health Data",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 21,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.update),
-              iconSize: 30,
-              color: Colors.white,
-              tooltip: 'Cập nhật thể trạng hiện tại',
-            ),
-          ],
-          toolbarHeight: 60,
-        ),
-        body: IndexedStack(index: _index, children: _option),
 
+        body: IndexedStack(index: _index, children: _option),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(

@@ -213,7 +213,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                           },
                           style: FilledButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(20.0),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
                             foregroundColor:
                                 _selectedIndexGoal == 0
@@ -239,7 +239,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                           },
                           style: FilledButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(20.0),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
                             foregroundColor:
                                 _selectedIndexGoal == 1

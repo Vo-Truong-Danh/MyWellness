@@ -3,6 +3,8 @@ import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
 import 'package:my_wellness/src/screens/home/addhabit.dart';
 import 'package:my_wellness/src/widget/canhbaohr.dart';
 
+import '../../core/recipe/showdialoghomepage.dart';
+
 class HomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -29,101 +31,121 @@ class Homepage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (ColorHr == Colors.orange) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => Canhbaohr(HR: Hr),
-            barrierDismissible: true,
-          );
-        }
-      });
-    }
-    if (ColorHr == Colors.red) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => NguyHiemHR(HR: Hr),
-            barrierDismissible: true,
-          );
-        }
-      });
-    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Showdialoghomepage(context, ColorHr, Hr);
+      }
+    });
+  }
+
+  Widget _buildBody() {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 2, child: _buildStepsCard()),
+                SizedBox(width: 16),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      _buildSmallInfoCard(
+                        icon: Icons.favorite,
+                        iconColor: Colors.redAccent,
+                        label: ' HR',
+                        value: Text(
+                          '${Hr.toInt()} bpm',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: ColorHr,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      _buildSmallInfoCard(
+                        icon: Icons.scale,
+                        iconColor: Colors.blueAccent,
+                        label: 'Weight',
+                        value: Text(
+                          '69 kg',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      _buildSmallInfoCard(
+                        icon: Icons.local_fire_department,
+                        iconColor: Colors.orangeAccent,
+                        label: 'Kcal',
+                        value: Text(
+                          '520 ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            _buildSportsCard(),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 2, child: _buildStepsCard()),
-                  SizedBox(width: 16),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        _buildSmallInfoCard(
-                          icon: Icons.favorite,
-                          iconColor: Colors.redAccent,
-                          label: ' HR',
-                          value: Text(
-                            '${Hr.toInt()} bpm',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: ColorHr,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        _buildSmallInfoCard(
-                          icon: Icons.scale,
-                          iconColor: Colors.blueAccent,
-                          label: 'Weight',
-                          value: Text(
-                            '69 kg',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        _buildSmallInfoCard(
-                          icon: Icons.local_fire_department,
-                          iconColor: Colors.orangeAccent,
-                          label: 'Kcal',
-                          value: Text(
-                            '520 ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              _buildSportsCard(),
-            ],
-          ),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF30C9B7),
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.menu, size: 30, color: Colors.white),
         ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Health Data",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 21,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Showdialoghomepage(context,ColorHr,Hr);
+            },
+            icon: Icon(Icons.update),
+            iconSize: 30,
+            color: Colors.white,
+            tooltip: 'Cập nhật thể trạng hiện tại',
+          ),
+        ],
+        toolbarHeight: 60,
       ),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
