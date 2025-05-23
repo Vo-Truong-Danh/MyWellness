@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class Homepage extends State<HomePage> {
-  static double Hr = 189; // Giá trị HR hiện tại
+  static double Hr = 89; // Giá trị HR hiện tại
   Color ColorHr = identify_3_colors_exception(
     Hr,
     [60, 100],
@@ -25,8 +25,22 @@ class Homepage extends State<HomePage> {
   );
 
   static double Weight = 69; // Giá trị Weight hiện tại
-  double Kcal = 520; // Giá trị Kcal hiện tại
-  double DailyGoal = 0.35; // % Hoàn thành các hoạt động hiện tại
+
+  static double MucTieuKcal = 1500;
+  static double Kcal = 720; // Giá trị Kcal hiện tại
+
+  Color ColorKcal = identify_3_colors(
+    Kcal,
+    [MucTieuKcal * 0.75, MucTieuKcal],
+    [MucTieuKcal * 0.35, MucTieuKcal * 0.75],
+    [0, MucTieuKcal * 0.35],
+  );
+
+  static double DailyGoal = 0.18; // % Hoàn thành các hoạt động hiện tại
+  Color ColorDailyGoal = identify_3_colors(DailyGoal, [0.75, 1], [0.35, 0.74], [
+    0,
+    0.34,
+  ]);
 
   @override
   void initState() {
@@ -89,8 +103,9 @@ class Homepage extends State<HomePage> {
                         iconColor: Colors.orangeAccent,
                         label: 'Kcal',
                         value: Text(
-                          '520 ',
+                          '${Kcal.toInt()}',
                           style: TextStyle(
+                            color: ColorKcal,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -135,7 +150,7 @@ class Homepage extends State<HomePage> {
         actions: [
           IconButton(
             onPressed: () {
-              Showdialoghomepage(context,ColorHr,Hr);
+              Showdialoghomepage(context, ColorHr, Hr);
             },
             icon: Icon(Icons.update),
             iconSize: 30,
@@ -166,7 +181,7 @@ class Homepage extends State<HomePage> {
 
   Widget _buildStepsCard() {
     // tiến trình (0.0 đến 1.0)
-    double currentProgress = 0.35;
+    double currentProgress = DailyGoal;
 
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -217,7 +232,7 @@ class Homepage extends State<HomePage> {
                   CircularProgressIndicator(
                     value: currentProgress,
                     strokeWidth: 8,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent),
+                    valueColor: AlwaysStoppedAnimation<Color>(ColorDailyGoal),
                     backgroundColor: Colors.transparent,
                   ),
                   Center(
@@ -234,10 +249,10 @@ class Homepage extends State<HomePage> {
                       ),
                       child: Center(
                         child: Text(
-                          '35%', // % hòàn thành mục tiêu hằng ngày
+                          '${(DailyGoal * 100).toInt()}%', // % hoàn thành mục tiêu hằng ngày
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 40,
+                            fontSize: 35,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

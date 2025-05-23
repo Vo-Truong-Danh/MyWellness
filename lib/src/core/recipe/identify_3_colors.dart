@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 Color identify_3_colors(double GiaTriCanXet, List<double> KhoanAnToan, List<double> KhoanCanhBao, List<double> KhoanNguyHiem)
 {
   if(GiaTriCanXet >= KhoanAnToan[0] && GiaTriCanXet <= KhoanAnToan[1])
-    return Colors.green ;
-  else if(GiaTriCanXet >= KhoanCanhBao[0] && GiaTriCanXet <= KhoanCanhBao[1])
+    return Colors.lightGreenAccent;
+  else if(GiaTriCanXet > KhoanCanhBao[0] && GiaTriCanXet <= KhoanCanhBao[1])
     return Colors.orange ;
-  else if(GiaTriCanXet >= KhoanNguyHiem[0] && GiaTriCanXet <= KhoanNguyHiem[1])
+  else if(GiaTriCanXet > KhoanNguyHiem[0] && GiaTriCanXet <= KhoanNguyHiem[1])
     return Colors.red ;
   else
     return Colors.white ;
