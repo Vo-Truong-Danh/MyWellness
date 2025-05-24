@@ -15,8 +15,8 @@ class HomePage extends StatefulWidget {
 }
 
 class Homepage extends State<HomePage> {
+  static double Hr = 119; // Giá trị HR hiện tại
   final DateTime today = DateTime.now();
-  static double Hr = 89; // Giá trị HR hiện tại
   Color ColorHr = identify_3_colors_exception(
     Hr,
     [60, 100],
@@ -88,11 +88,11 @@ class Homepage extends State<HomePage> {
                       ),
                       SizedBox(height: 12),
                       _buildSmallInfoCard(
-                        icon: Icons.scale,
                         iconColor: Colors.blueAccent,
-                        label: 'Weight',
+                        icon: Icons.bloodtype,
+                        label: ' BP',
                         value: Text(
-                          '69 kg',
+                          '120/80',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
