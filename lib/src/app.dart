@@ -1,10 +1,11 @@
 // lib/src/app.dart
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/screens/home/homepage.dart';
-import 'package:my_wellness/src/screens/nutrition_tracking/nutrition_tracking.dart';
-import 'package:my_wellness/src/screens/workout_tracking/workout_tracking.dart';
+import 'package:my_wellness/src/screens/chart/chart.dart';
+import 'package:my_wellness/src/screens/account_setting/account_setting.dart';
 
 class MyApp extends StatefulWidget {
+
   @override
   State<StatefulWidget> createState() {
     return MainApp();
@@ -12,13 +13,14 @@ class MyApp extends StatefulWidget {
 }
 
 class MainApp extends State<MyApp> {
+
   int _index = 0;
 
   @override
   static List<Widget> _option = <Widget>[
     HomePage(),
-    Nutrition_Tracking(),
-    Workout_Tracking(),
+    Chart(),
+    Account_Setting(),
   ];
 
   Widget build(BuildContext context) {
