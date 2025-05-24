@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_wellness/src/screens/home/createhabitdrinkwater.dart';
+import 'package:my_wellness/src/screens/habits/createdrinkwater.dart';
+import 'package:my_wellness/src/screens/habits/createexercise.dart';
 
 class HabitButton extends StatelessWidget {
   final String fileImage;
@@ -134,44 +135,21 @@ class _AddHabitBottomSheet extends State<AddHabitBottomSheet> {
                                   ),
                             ),
                             HabitButton(
-                              fileImage: "assets/images/icon_star.png",
-                              title: "New Habit",
+                              fileImage: "assets/images/exercise.png",
+                              title: "Exercise",
                               backgroundColor: Color.fromARGB(
                                 255,
                                 255,
                                 234,
                                 148,
                               ),
-                            ),
-                            HabitButton(
-                              fileImage: "assets/images/icon_star.png",
-                              title: "New Habit",
-                              backgroundColor: Color.fromARGB(
-                                255,
-                                255,
-                                234,
-                                148,
-                              ),
-                            ),
-                            HabitButton(
-                              fileImage: "assets/images/icon_star.png",
-                              title: "New Habit",
-                              backgroundColor: Color.fromARGB(
-                                255,
-                                255,
-                                234,
-                                148,
-                              ),
-                            ),
-                            HabitButton(
-                              fileImage: "assets/images/icon_star.png",
-                              title: "New Habit",
-                              backgroundColor: Color.fromARGB(
-                                255,
-                                255,
-                                234,
-                                148,
-                              ),
+                              onPressed:
+                                  () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateExercise(),
+                                    ),
+                                  ),
                             ),
                           ],
                         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/widget/textformfieldwidget.dart';
-import 'package:direct_select/direct_select.dart';
 
 // ==============================================================================
 class MySelectionItem extends StatelessWidget {

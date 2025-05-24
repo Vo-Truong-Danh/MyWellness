@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
-import 'package:my_wellness/src/screens/home/addhabit.dart';
+import 'package:my_wellness/src/screens/habits/addhabit.dart';
 import 'package:my_wellness/src/widget/canhbaohr.dart';
 
 import '../../core/recipe/showdialoghomepage.dart';
