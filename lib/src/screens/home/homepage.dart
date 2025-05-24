@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
 import 'package:my_wellness/src/screens/habits/addhabit.dart';
-import 'package:my_wellness/src/widget/canhbaohr.dart';
-
+import 'package:my_wellness/src/widget/habitcountcheck.dart';
+import 'package:my_wellness/src/widget/habittaskcheck.dart';
 import '../../core/recipe/showdialoghomepage.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return Homepage();
@@ -13,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class Homepage extends State<HomePage> {
+  final DateTime today = DateTime.now();
   static double Hr = 89; // Giá trị HR hiện tại
   Color ColorHr = identify_3_colors_exception(
     Hr,
@@ -119,10 +122,111 @@ class Homepage extends State<HomePage> {
             ),
             SizedBox(height: 20),
             _buildSportsCard(),
+
+            Center(
+              heightFactor: 2.0,
+              child: Divider(
+                color: const Color.fromARGB(255, 209, 209, 209),
+                thickness: 2,
+              ),
+            ),
+            _buildWeekDaySelector(),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildWeekDaySelector() {
+    final startOfWeek = today.subtract(Duration(days: today.weekday % 7));
+    final List<DateTime> weekDates = List.generate(
+      7,
+      (i) => startOfWeek.add(Duration(days: i)),
+    );
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // Tháng hiện tại
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                "Tháng ${today.month}",
+                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+            // Today
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                "Today",
+                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children:
+              weekDates.map((date) {
+                bool isToday = _isSameDay(date, today);
+
+                return Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor:
+                          isToday ? Colors.white : Colors.transparent,
+                    ),
+                    onPressed: () {},
+                    child: Column(
+                      children: [
+                        Text(
+                          _getWeekdayLabel(date.weekday),
+                          style: TextStyle(
+                            fontWeight:
+                                isToday ? FontWeight.bold : FontWeight.normal,
+                            color: isToday ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${date.day}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+        ),
+        SizedBox(height: 10.0),
+        HabitCountCheck(
+          fileImage: "assets/images/water_glass.png",
+          title: "Drink Water",
+          backgroundIconColor: Color.fromARGB(255, 87, 197, 248),
+        ),
+        SizedBox(height: 10.0),
+        HabitTaskCheck(
+          fileImage: "assets/images/exercise.png",
+          title: "Exercise",
+          backgroundIconColor: Color.fromARGB(255, 219, 189, 70),
+        ),
+      ],
+    );
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String _getWeekdayLabel(int weekday) {
+    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return labels[weekday % 7];
   }
 
   @override
