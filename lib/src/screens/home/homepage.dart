@@ -122,6 +122,10 @@ class Homepage extends State<HomePage> {
             ),
             SizedBox(height: 20),
             _buildSportsCard(),
+            SizedBox(height: 20),
+            _buildSportsCard(),
+            SizedBox(height: 20),
+            _buildSportsCard(),
 
             Center(
               heightFactor: 2.0,

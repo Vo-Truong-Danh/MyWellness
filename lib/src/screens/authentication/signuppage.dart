@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_wellness/src/app.dart';
 
 class SignPageUp extends StatefulWidget {
   const SignPageUp({super.key});
@@ -40,7 +41,11 @@ class _SignPageUpState extends State<SignPageUp> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Đăng ký thành công!')));
-        Navigator.of(context).pop();
+
+        Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => MyApp()),
+              (Route<dynamic> route) => false,
+            );
       }
     } on FirebaseAuthException catch (e) {
       String message = 'Đã có lỗi xảy ra.';
