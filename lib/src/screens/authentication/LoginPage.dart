@@ -36,7 +36,6 @@ class _LoginPageState extends State<LoginPage> {
       //     (Route<dynamic> route) => false,
       //   );
       // }
-
     } on FirebaseAuthException catch (e) {
       String message = 'Có lỗi xảy ra.';
       if (e.code == 'user-not-found' ||
