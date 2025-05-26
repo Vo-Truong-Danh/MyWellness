@@ -303,7 +303,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                                     );
                                   },
                                   child: Text(
-                                    "$_selectedNumberOfGlasses times",
+                                    "$_selectedNumberOfGlasses time",
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       color: Colors.white,
