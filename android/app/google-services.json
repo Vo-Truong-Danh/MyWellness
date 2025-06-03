@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "420462404362",
-    "project_id": "mywellness-93f87",
-    "storage_bucket": "mywellness-93f87.firebasestorage.app"
+    "project_number": "681471061255",
+    "project_id": "mywellness-70ab9",
+    "storage_bucket": "mywellness-70ab9.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:420462404362:android:216b07a63494bc0b6b90f3",
+        "mobilesdk_app_id": "1:681471061255:android:4429808cedab40ceb8a9a2",
         "android_client_info": {
           "package_name": "com.example.my_wellness"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBCIcscPU_rAhtERuAMoZXCZGza7a-PEJg"
+          "current_key": "AIzaSyC8hCxvGdIuRh9y4nebsl2E5mn0qKvd2rQ"
         }
       ],
       "services": {

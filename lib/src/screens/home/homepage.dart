@@ -135,6 +135,7 @@ class Homepage extends State<HomePage> {
               ),
             ),
             _buildWeekDaySelector(),
+            SizedBox(height: 50,)
           ],
         ),
       ),
@@ -385,11 +386,10 @@ class Homepage extends State<HomePage> {
     VoidCallback? onTap, // Thêm tham số onTap
   }) {
     return InkWell(
-      // Bọc bằng InkWell để có hiệu ứng gợn sóng và xử lý onTap
       onTap: onTap, // Gán callback
       borderRadius: BorderRadius.circular(
         15.0,
-      ), // Để hiệu ứng gợn sóng khớp với bo góc của Container
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
