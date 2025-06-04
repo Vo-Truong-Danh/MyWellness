@@ -45,6 +45,17 @@ class Homepage extends State<HomePage> {
     0.34,
   ]);
 
+  // Giá trị cho theo dõi giấc ngủ
+  static double SleepHours = 6.5; // Số giờ ngủ
+  Color ColorSleep = identify_3_colors(SleepHours, [7, 9], [5, 6.9], [0, 4.9]);
+
+  // Giá trị cho quản lý chế độ ăn uống
+  static double DietGoal = 0.6; // Tiến độ hoàn thành chế độ ăn uống
+  Color ColorDiet = identify_3_colors(DietGoal, [0.75, 1], [0.35, 0.74], [
+    0,
+    0.34,
+  ]);
+
   @override
   void initState() {
     super.initState();
@@ -123,10 +134,9 @@ class Homepage extends State<HomePage> {
             SizedBox(height: 20),
             _buildSportsCard(),
             SizedBox(height: 20),
-            _buildSportsCard(),
+            _buildSleepCard(), // Thẻ theo dõi giấc ngủ
             SizedBox(height: 20),
-            _buildSportsCard(),
-
+            _buildDietCard(), // Thẻ quản lý chế độ ăn uống
             Center(
               heightFactor: 2.0,
               child: Divider(
@@ -135,7 +145,7 @@ class Homepage extends State<HomePage> {
               ),
             ),
             _buildWeekDaySelector(),
-            SizedBox(height: 50,)
+            SizedBox(height: 50),
           ],
         ),
       ),
@@ -154,7 +164,6 @@ class Homepage extends State<HomePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            // Tháng hiện tại
             TextButton(
               onPressed: () {},
               child: Text(
@@ -162,7 +171,6 @@ class Homepage extends State<HomePage> {
                 style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
               ),
             ),
-            // Today
             TextButton(
               onPressed: () {},
               child: Text(
@@ -289,7 +297,6 @@ class Homepage extends State<HomePage> {
   }
 
   Widget _buildStepsCard() {
-    // tiến trình (0.0 đến 1.0)
     double currentProgress = DailyGoal;
 
     return Container(
@@ -358,7 +365,7 @@ class Homepage extends State<HomePage> {
                       ),
                       child: Center(
                         child: Text(
-                          '${(DailyGoal * 100).toInt()}%', // % hoàn thành mục tiêu hằng ngày
+                          '${(DailyGoal * 100).toInt()}%',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 35,
@@ -383,13 +390,11 @@ class Homepage extends State<HomePage> {
     required Color iconColor,
     required String label,
     required Text value,
-    VoidCallback? onTap, // Thêm tham số onTap
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: onTap, // Gán callback
-      borderRadius: BorderRadius.circular(
-        15.0,
-      ),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15.0),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
@@ -405,7 +410,6 @@ class Homepage extends State<HomePage> {
           ],
         ),
         child: Row(
-          // ... (Nội dung còn lại của Row giữ nguyên)
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +461,7 @@ class Homepage extends State<HomePage> {
               Icons.fitness_center,
               color: Color(0xFF30C9B7),
               size: 28,
-            ), // Icon tạ
+            ),
           ),
           SizedBox(width: 16),
           Expanded(
@@ -476,6 +480,110 @@ class Homepage extends State<HomePage> {
                 Text(
                   'Thể thao',
                   style: TextStyle(fontSize: 13, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSleepCard() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.purple.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(
+              "assets/images/sleep.png",
+              width: 28,
+              height: 28,
+              color: Colors.purple,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Theo dõi giấc ngủ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDietCard() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(
+              "assets/images/diet.png",
+              width: 28,
+              height: 28,
+              color: Colors.green,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chế độ ăn uống',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
               ],
             ),
