@@ -3,7 +3,13 @@ import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
 import 'package:my_wellness/src/screens/habits/addhabit.dart';
 import 'package:my_wellness/src/widget/habitcountcheck.dart';
 import 'package:my_wellness/src/widget/habittaskcheck.dart';
+import 'package:my_wellness/src/widget/health_metrics_dialog.dart';
 import '../../core/recipe/showdialoghomepage.dart';
+import 'package:provider/provider.dart';
+import '../../data/providers/selected_date_provider.dart';
+import '../../data/providers/health_data_provider.dart';
+import '../../data/models/health_entries.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -60,11 +66,76 @@ class Homepage extends State<HomePage> {
   void initState() {
     super.initState();
 
+    // Tải dữ liệu người dùng và nhật ký sức khỏe khi màn hình khởi tạo
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
+        final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+
+        // Tải thông tin người dùng
+        healthProvider.loadUserData();
+
+        // Tải nhật ký sức khỏe của ngày hiện tại
+        healthProvider.loadDailyLog(dateProvider.selectedDate);
+
+        // Hiện dialog cập nhật thông tin sức khỏe (giữ nguyên chức năng cũ)
         Showdialoghomepage(context, ColorHr, Hr);
       }
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF30C9B7),
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.menu, size: 30, color: Colors.white),
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Health Data",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 21,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Showdialoghomepage(context, ColorHr, Hr);
+            },
+            icon: Icon(Icons.update),
+            iconSize: 30,
+            color: Colors.white,
+            tooltip: 'Cập nhật thể trạng hiện tại',
+          ),
+        ],
+        toolbarHeight: 60,
+      ),
+      body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            useSafeArea: true,
+            context: context,
+            builder: (context) {
+              return AddHabitBottomSheet();
+            },
+          );
+        },
+        backgroundColor: Color(0xFF30C9B7),
+        tooltip: 'Thêm mới',
+        child: Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+    );
   }
 
   Widget _buildBody() {
@@ -74,6 +145,8 @@ class Homepage extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildWeekDaySelector(),
+            SizedBox(height: 20),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -144,7 +217,6 @@ class Homepage extends State<HomePage> {
                 thickness: 2,
               ),
             ),
-            _buildWeekDaySelector(),
             SizedBox(height: 50),
           ],
         ),
@@ -153,88 +225,113 @@ class Homepage extends State<HomePage> {
   }
 
   Widget _buildWeekDaySelector() {
-    final startOfWeek = today.subtract(Duration(days: today.weekday % 7));
-    final List<DateTime> weekDates = List.generate(
-      7,
-      (i) => startOfWeek.add(Duration(days: i)),
-    );
+    return Consumer<SelectedDateProvider>(
+        builder: (context, dateProvider, child) {
+          final selectedDate = dateProvider.selectedDate;
 
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                "Tháng ${today.month}",
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                "Today",
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children:
-              weekDates.map((date) {
-                bool isToday = _isSameDay(date, today);
+          // Tính toán ngày đầu tuần (chủ nhật) dựa vào ngày đang chọn
+          final startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
+          final List<DateTime> weekDates = List.generate(
+            7,
+                (i) => startOfWeek.add(Duration(days: i)),
+          );
 
-                return Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor:
-                          isToday ? Colors.white : Colors.transparent,
-                    ),
-                    onPressed: () {},
-                    child: Column(
-                      children: [
-                        Text(
-                          _getWeekdayLabel(date.weekday),
-                          style: TextStyle(
-                            fontWeight:
-                                isToday ? FontWeight.bold : FontWeight.normal,
-                            color: isToday ? Colors.black : Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${date.day}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
+          return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Nút điều hướng qua tuần trước
+                  IconButton(
+                    icon: Icon(Icons.arrow_back_ios),
+                    onPressed: () => dateProvider.previousWeek(),
+                  ),
+
+                  // Hiển thị tháng hiện tại
+                  Text(
+                    dateProvider.getFormattedMonth(),
+                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  ),
+
+                  // Nút quay về ngày hôm nay
+                  TextButton(
+                    onPressed: () => dateProvider.setDate(DateTime.now()),
+                    child: Text(
+                      "Hôm nay",
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor
+                      ),
                     ),
                   ),
-                );
-              }).toList(),
-        ),
-        SizedBox(height: 10.0),
-        HabitCountCheck(
-          fileImage: "assets/images/water_glass.png",
-          title: "Drink Water",
-          backgroundIconColor: Color.fromARGB(255, 87, 197, 248),
-        ),
-        SizedBox(height: 10.0),
-        HabitTaskCheck(
-          fileImage: "assets/images/exercise.png",
-          title: "Exercise",
-          backgroundIconColor: Color.fromARGB(255, 219, 189, 70),
-        ),
-      ],
-    );
-  }
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+                  // Nút điều hướng qua tuần sau
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward_ios),
+                    onPressed: () => dateProvider.nextWeek(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: weekDates.map((date) {
+                  bool isSelected = _isSameDay(date, selectedDate);
+                  bool isToday = _isSameDay(date, DateTime.now());
+
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => dateProvider.setDate(date),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Color(0xFF30C9B7).withOpacity(0.2) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: isToday && !isSelected ?
+                          Border.all(color: Color(0xFF30C9B7)) : null,
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              _getWeekdayLabel(date.weekday),
+                              style: TextStyle(
+                                fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected ? Color(0xFF30C9B7) :
+                                isToday ? Colors.black : Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${date.day}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? Color(0xFF30C9B7) : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 10),
+              HabitCountCheck(
+                fileImage: "assets/images/water_glass.png",
+                title: "Drink Water",
+                backgroundIconColor: Color.fromARGB(255, 87, 197, 248),
+              ),
+              SizedBox(height: 10.0),
+              HabitTaskCheck(
+                fileImage: "assets/images/exercise.png",
+                title: "Exercise",
+                backgroundIconColor: Color.fromARGB(255, 219, 189, 70),
+              ),
+            ],
+          );
+        }
+    );
   }
 
   String _getWeekdayLabel(int weekday) {
@@ -242,58 +339,8 @@ class Homepage extends State<HomePage> {
     return labels[weekday % 7];
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF30C9B7),
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.menu, size: 30, color: Colors.white),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Health Data",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 21,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Showdialoghomepage(context, ColorHr, Hr);
-            },
-            icon: Icon(Icons.update),
-            iconSize: 30,
-            color: Colors.white,
-            tooltip: 'Cập nhật thể trạng hiện tại',
-          ),
-        ],
-        toolbarHeight: 60,
-      ),
-      body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            useSafeArea: true,
-            context: context,
-            builder: (context) {
-              return AddHabitBottomSheet();
-            },
-          );
-        },
-        backgroundColor: Color(0xFF30C9B7),
-        tooltip: 'Thêm mới',
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-    );
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   Widget _buildStepsCard() {

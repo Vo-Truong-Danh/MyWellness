@@ -15,7 +15,10 @@ dependencies:
   firebase_auth: ^5.5.4
   google_fonts: any
   cloud_firestore: any
-
+  fl_chart: ^0.66.2
+  # flutter_local_notifications: 13.0.0  # Tạm thời bỏ để fix lỗi build
+  intl: ^0.18.1
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_test:
