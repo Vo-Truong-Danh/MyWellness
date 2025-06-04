@@ -77,7 +77,39 @@ class HealthDataProvider extends ChangeNotifier {
   Future<bool> addHeartRateReading(double value, DateTime date) async {
     final success = await _service.addHeartRateReading(value, date);
     if (success) {
-      await loadDailyLog(date); // Tải lại dữ liệu
+      // Cập nhật dữ liệu local trước khi tải lại từ DB
+      if (_dailyLog != null) {
+        // Tạo bản ghi mới
+        HeartRateEntry newEntry = HeartRateEntry(value: value, time: DateTime.now());
+
+        // Tạo danh sách mới từ danh sách hiện tại (nếu có) và thêm bản ghi mới
+        List<HeartRateEntry> updatedReadings = [];
+        if (_dailyLog!.heartRateReadings != null) {
+          updatedReadings.addAll(_dailyLog!.heartRateReadings!);
+        }
+        updatedReadings.add(newEntry);
+
+        // Tạo một bản sao mới của DailyLog với danh sách heartRateReadings đã cập nhật
+        _dailyLog = DailyLog(
+          id: _dailyLog!.id,
+          date: _dailyLog!.date,
+          currentWeight: _dailyLog!.currentWeight,
+          loggedCalories: _dailyLog!.loggedCalories,
+          currentWaterIntake: _dailyLog!.currentWaterIntake,
+          currentSteps: _dailyLog!.currentSteps,
+          heartRateReadings: updatedReadings,
+          bloodPressureReadings: _dailyLog!.bloodPressureReadings,
+          workoutLogs: _dailyLog!.workoutLogs,
+          nutritionLogs: _dailyLog!.nutritionLogs,
+          habitCompletions: _dailyLog!.habitCompletions,
+        );
+
+        // Thông báo UI cập nhật ngay lập tức
+        notifyListeners();
+      }
+
+      // Tải lại toàn bộ dữ liệu từ DB để đảm bảo đồng bộ
+      await loadDailyLog(date);
     }
     return success;
   }
@@ -86,12 +118,48 @@ class HealthDataProvider extends ChangeNotifier {
   Future<bool> addBloodPressureReading(int systolic, int diastolic, DateTime date) async {
     final success = await _service.addBloodPressureReading(systolic, diastolic, date);
     if (success) {
-      await loadDailyLog(date); // Tải lại dữ liệu
+      // Cập nhật dữ liệu local trước khi tải lại từ DB
+      if (_dailyLog != null) {
+        // Tạo bản ghi mới
+        BloodPressureEntry newEntry = BloodPressureEntry(
+          systolic: systolic,
+          diastolic: diastolic,
+          time: DateTime.now()
+        );
+
+        // Tạo danh sách mới từ danh sách hiện tại (nếu có) và thêm bản ghi mới
+        List<BloodPressureEntry> updatedReadings = [];
+        if (_dailyLog!.bloodPressureReadings != null) {
+          updatedReadings.addAll(_dailyLog!.bloodPressureReadings!);
+        }
+        updatedReadings.add(newEntry);
+
+        // Tạo một bản sao mới của DailyLog với danh sách bloodPressureReadings đã cập nhật
+        _dailyLog = DailyLog(
+          id: _dailyLog!.id,
+          date: _dailyLog!.date,
+          currentWeight: _dailyLog!.currentWeight,
+          loggedCalories: _dailyLog!.loggedCalories,
+          currentWaterIntake: _dailyLog!.currentWaterIntake,
+          currentSteps: _dailyLog!.currentSteps,
+          heartRateReadings: _dailyLog!.heartRateReadings,
+          bloodPressureReadings: updatedReadings,
+          workoutLogs: _dailyLog!.workoutLogs,
+          nutritionLogs: _dailyLog!.nutritionLogs,
+          habitCompletions: _dailyLog!.habitCompletions,
+        );
+
+        // Thông báo UI cập nhật ngay lập tức
+        notifyListeners();
+      }
+
+      // Tải lại toàn bộ dữ liệu từ DB để đảm bảo đồng bộ
+      await loadDailyLog(date);
     }
     return success;
   }
 
-  // Cập nhật lượng nước đã uống
+  // Cập nhật lư��ng nước đã uống
   Future<bool> updateWaterIntake(double amount, DateTime date) async {
     final success = await _service.updateWaterIntake(amount, date);
     if (success) {
@@ -147,7 +215,7 @@ class HealthDataProvider extends ChangeNotifier {
     return success;
   }
 
-  // Tính toán tổng lượng calo đã tiêu thụ trong ngày
+  // Tính toán tổng l��ợng calo đã tiêu thụ trong ngày
   double getTotalCalories() {
     if (_dailyLog?.loggedCalories == null) return 0.0;
     return _dailyLog!.loggedCalories!;

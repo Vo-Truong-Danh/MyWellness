@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_wellness/src/screens/chart/chart.dart';
 import 'package:my_wellness/src/screens/account_setting/account_setting.dart';
+import 'package:my_wellness/src/screens/home/homepage.dart';
 import 'package:provider/provider.dart';
 import 'package:my_wellness/src/data/providers/selected_date_provider.dart';
 import 'package:my_wellness/src/data/providers/health_data_provider.dart';
-import 'package:my_wellness/src/screens/home/homepage_v2.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -19,10 +19,14 @@ class MainApp extends State<MyApp> {
 
   @override
   static List<Widget> _option = <Widget>[
-    HomePageV2(),
+    HomePage(),
     Chart(),
-    Account_Setting(),
+    AccountSetting(),
   ];
+
+  void navigateToAccountSettings() {
+    Navigator.pushNamed(context, '/account_settings');
+  }
 
   Widget build(BuildContext context) {
     return MultiProvider(

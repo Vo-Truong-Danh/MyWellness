@@ -223,37 +223,83 @@ class _HealthMetricsDialogState extends State<HealthMetricsDialog> {
 
     bool success = false;
 
-    if (widget.isHeartRate) {
-      // Lưu nhịp tim
-      success = await healthProvider.addHeartRateReading(
-        _heartRate,
-        dateProvider.selectedDate
-      );
-    } else {
-      // Lưu huyết áp
-      success = await healthProvider.addBloodPressureReading(
-        _systolic,
-        _diastolic,
-        dateProvider.selectedDate
-      );
-    }
+    try {
+      if (widget.isHeartRate) {
+        // Lưu nhịp tim
+        success = await healthProvider.addHeartRateReading(
+          _heartRate,
+          dateProvider.selectedDate
+        );
+      } else {
+        // Lưu huyết áp
+        success = await healthProvider.addBloodPressureReading(
+          _systolic,
+          _diastolic,
+          dateProvider.selectedDate
+        );
+      }
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _isSaving = false;
-    });
+      if (success) {
+        // Chờ một chút để đảm bảo dữ liệu được lưu đầy đủ
+        await Future.delayed(Duration(milliseconds: 300));
 
-    if (success) {
-      Navigator.of(context).pop(true);
-    } else {
-      // Hiển thị thông báo lỗi
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+        // Làm mới cả dữ liệu người dùng và dữ liệu nhật ký
+        await healthProvider.loadUserData();
+        await healthProvider.loadDailyLog(dateProvider.selectedDate);
+
+        // Hiển thị thông báo thành công
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.isHeartRate ? 'Đã cập nhật nhịp tim' : 'Đã cập nhật huyết áp'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Buộc làm mới UI của homepage
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            // Tìm StatefulWidget gần nhất (có thể là HomePage) và gọi setState
+            final state = context.findAncestorStateOfType<State<StatefulWidget>>();
+            if (state != null && state.mounted) {
+              state.setState(() {
+                // Làm mới UI
+              });
+            }
+          }
+        });
+
+        // Đóng hộp thoại và báo thành công
+        Navigator.of(context).pop(true);
+      } else {
+        setState(() {
+          _isSaving = false;
+        });
+
+        // Hiển thị thông báo lỗi
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Xử lý ngoại lệ nếu có
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
