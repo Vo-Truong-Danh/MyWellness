@@ -16,7 +16,7 @@ import 'package:intl/intl.dart';
 final GlobalKey<_HomePageV2State> homePageKey = GlobalKey<_HomePageV2State>();
 
 class HomePage extends StatefulWidget {
-  // Bỏ từ khóa 'const' vì homePageKey không phải là hằng số
+  // Đã sửa: Bỏ từ khóa 'const' vì homePageKey không phải là hằng số
   HomePage({Key? key}) : super(key: homePageKey);
 
   // Thêm phương thức static để buộc refresh từ bất kỳ đâu
@@ -45,7 +45,7 @@ class _HomePageV2State extends State<HomePage> {
     });
   }
 
-  // Phương thức ��ể làm mới dữ liệu
+  // Phương thức để làm mới dữ liệu
   void refreshData() {
     if (!mounted) return;
 

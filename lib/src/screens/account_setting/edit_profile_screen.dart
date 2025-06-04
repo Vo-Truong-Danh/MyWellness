@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final Map<String, dynamic>? userData;
+  final Map<String, dynamic> userData;
 
-  const EditProfileScreen({Key? key, this.userData}) : super(key: key);
+  EditProfileScreen({required this.userData});
 
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -15,153 +15,127 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _heightController = TextEditingController();
-  final _weightController = TextEditingController();
-  final _dateOfBirthController = TextEditingController();
-
-  String _selectedGender = 'Nam';
-  String _selectedGoal = 'Giảm cân';
-  DateTime? _selectedDate;
   bool _isLoading = false;
 
-  final List<String> _genders = ['Nam', 'Nữ', 'Khác'];
-  final List<String> _goals = [
-    'Giảm cân',
-    'Tăng cân',
-    'Duy trì cân nặng',
-    'Tăng cơ',
-    'Sức khỏe tổng thể'
-  ];
+  // Controller cho các trường nhập liệu
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+
+  DateTime? _birthday;
+  String? _gender;
 
   @override
   void initState() {
     super.initState();
-    _initUserData();
+    _loadUserData();
   }
 
-  void _initUserData() {
-    final User? user = FirebaseAuth.instance.currentUser;
+  @override
+  void dispose() {
+    // Giải phóng controllers khi widget bị hủy
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    super.dispose();
+  }
 
-    // Điền thông tin từ userData được truyền vào
-    if (widget.userData != null) {
-      _nameController.text = widget.userData!['name'] ?? user?.displayName ?? '';
-      _heightController.text = widget.userData!['height']?.toString() ?? '';
-      _weightController.text = widget.userData!['weight']?.toString() ?? '';
+  void _loadUserData() {
+    _nameController.text = widget.userData['name'] ?? '';
+    _emailController.text = widget.userData['email'] ?? '';
+    _phoneController.text = widget.userData['phone'] ?? '';
+    _heightController.text = widget.userData['height']?.toString() ?? '';
+    _weightController.text = widget.userData['weight']?.toString() ?? '';
 
-      if (widget.userData!['dateOfBirth'] != null) {
-        if (widget.userData!['dateOfBirth'] is Timestamp) {
-          _selectedDate = widget.userData!['dateOfBirth'].toDate();
-        } else if (widget.userData!['dateOfBirth'] is String) {
-          try {
-            _selectedDate = DateFormat('yyyy-MM-dd').parse(widget.userData!['dateOfBirth']);
-          } catch (e) {
-            print('Lỗi khi chuyển đổi ngày: $e');
-          }
-        }
-
-        if (_selectedDate != null) {
-          _dateOfBirthController.text = DateFormat('dd/MM/yyyy').format(_selectedDate!);
-        }
-      }
-
-      if (widget.userData!['gender'] != null) {
-        _selectedGender = widget.userData!['gender'];
-      }
-
-      if (widget.userData!['fitnessGoal'] != null) {
-        _selectedGoal = widget.userData!['fitnessGoal'];
-      }
+    if (widget.userData['birthday'] != null) {
+      _birthday = (widget.userData['birthday'] as Timestamp).toDate();
     }
+
+    _gender = widget.userData['gender'];
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime(2000),
-      firstDate: DateTime(1900),
+      initialDate: _birthday ?? DateTime(2000),
+      firstDate: DateTime(1950),
       lastDate: DateTime.now(),
-      helpText: 'Chọn ngày sinh',
-      cancelText: 'Hủy',
-      confirmText: 'Chọn',
-      fieldLabelText: 'Ngày sinh',
-      fieldHintText: 'Ngày/Tháng/Năm',
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
+          data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: Color(0xFF30C9B7),
+              primary: Theme.of(context).primaryColor,
             ),
           ),
           child: child!,
         );
       },
     );
-
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null && picked != _birthday) {
       setState(() {
-        _selectedDate = picked;
-        _dateOfBirthController.text = DateFormat('dd/MM/yyyy').format(picked);
+        _birthday = picked;
       });
     }
   }
 
   Future<void> _saveProfile() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    if (!_formKey.currentState!.validate()) return;
 
-      try {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          throw Exception('Người dùng chưa đăng nhập');
-        }
+    setState(() {
+      _isLoading = true;
+    });
 
-        final userData = {
-          'name': _nameController.text.trim(),
-          'height': _heightController.text.isEmpty ? null : double.parse(_heightController.text),
-          'weight': _weightController.text.isEmpty ? null : double.parse(_weightController.text),
-          'dateOfBirth': _selectedDate,
-          'gender': _selectedGender,
-          'fitnessGoal': _selectedGoal,
-          'updatedAt': FieldValue.serverTimestamp(),
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Chuẩn bị dữ liệu để cập nhật
+        Map<String, dynamic> updatedData = {
+          'name': _nameController.text,
+          'phone': _phoneController.text,
+          'height': double.tryParse(_heightController.text) ?? 0.0,
+          'weight': double.tryParse(_weightController.text) ?? 0.0,
+          'lastUpdated': FieldValue.serverTimestamp(), // Thêm thời gian cập nhật
         };
 
-        // Cập nhật displayName trong Firebase Auth
-        await user.updateDisplayName(_nameController.text.trim());
+        if (_birthday != null) {
+          updatedData['birthday'] = Timestamp.fromDate(_birthday!);
+        }
 
-        // Cập nhật thông tin trong Firestore
+        if (_gender != null) {
+          updatedData['gender'] = _gender;
+        }
+
+        // Cập nhật dữ liệu lên Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
-            .set(userData, SetOptions(merge: true));
+            .update(updatedData);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đã cập nhật thông tin thành công'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context, true);
+        // Cập nhật dữ liệu DisplayName cho Authentication nếu họ tên đã thay đổi
+        if (user.displayName != _nameController.text) {
+          await user.updateDisplayName(_nameController.text);
         }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Lỗi cập nhật thông tin: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cập nhật thông tin thành công!')),
+        );
+
+        // Truyền kết quả true để thông báo màn hình trước đã có cập nhật dữ liệu
+        Navigator.pop(context, true);
       }
+    } catch (e) {
+      print('Error updating profile: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cập nhật thông tin thất bại. Vui lòng thử lại!')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -169,246 +143,185 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Chỉnh sửa hồ sơ',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Color(0xFF30C9B7),
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: Text('Chỉnh sửa thông tin cá nhân'),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
-
-                    // Tên
-                    _buildLabel('Họ và tên'),
-                    _buildTextField(
+                    // Họ và tên
+                    TextFormField(
                       controller: _nameController,
-                      hintText: 'Nhập họ và tên',
-                      prefixIcon: Icons.person_outline,
+                      decoration: InputDecoration(
+                        labelText: 'Họ và tên',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: Icon(Icons.person),
+                      ),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Vui lòng nhập họ và tên';
                         }
                         return null;
                       },
                     ),
+                    SizedBox(height: 16.0),
 
-                    const SizedBox(height: 20),
-
-                    // Giới tính
-                    _buildLabel('Giới tính'),
-                    _buildDropdown(
-                      items: _genders,
-                      value: _selectedGender,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedGender = value;
-                          });
-                        }
-                      },
-                      prefixIcon: Icons.people_outline,
+                    // Email (không thể sửa)
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: Icon(Icons.email),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                      ),
+                      readOnly: true, // Email không thể sửa
                     ),
+                    SizedBox(height: 16.0),
 
-                    const SizedBox(height: 20),
+                    // Số điện thoại
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: InputDecoration(
+                        labelText: 'Số điện thoại',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: Icon(Icons.phone),
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 16.0),
 
                     // Ngày sinh
-                    _buildLabel('Ngày sinh'),
-                    _buildTextField(
-                      controller: _dateOfBirthController,
-                      hintText: 'Chọn ngày sinh',
-                      prefixIcon: Icons.calendar_today,
-                      readOnly: true,
+                    GestureDetector(
                       onTap: () => _selectDate(context),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Chiều cao
-                    _buildLabel('Chiều cao (cm)'),
-                    _buildTextField(
-                      controller: _heightController,
-                      hintText: 'Nhập chiều cao',
-                      prefixIcon: Icons.height,
-                      keyboardType: TextInputType.number,
-                      suffixText: 'cm',
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Cân nặng
-                    _buildLabel('Cân nặng (kg)'),
-                    _buildTextField(
-                      controller: _weightController,
-                      hintText: 'Nhập cân nặng',
-                      prefixIcon: Icons.monitor_weight,
-                      keyboardType: TextInputType.number,
-                      suffixText: 'kg',
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Mục tiêu sức khỏe
-                    _buildLabel('Mục tiêu'),
-                    _buildDropdown(
-                      items: _goals,
-                      value: _selectedGoal,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedGoal = value;
-                          });
-                        }
-                      },
-                      prefixIcon: Icons.flag_outlined,
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Nút lưu
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF30C9B7),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Ngày sinh',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(Icons.calendar_today),
+                            suffixIcon: Icon(Icons.arrow_drop_down),
                           ),
-                        ),
-                        child: const Text(
-                          'Lưu thông tin',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          controller: TextEditingController(
+                            text: _birthday != null
+                                ? DateFormat('dd/MM/yyyy').format(_birthday!)
+                                : 'Chưa chọn',
                           ),
                         ),
                       ),
                     ),
+                    SizedBox(height: 16.0),
 
-                    const SizedBox(height: 20),
+                    // Giới tính
+                    FormField<String>(
+                      initialValue: _gender,
+                      builder: (FormFieldState<String> state) {
+                        return InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Giới tính',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(Icons.people),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _gender,
+                              isDense: true,
+                              isExpanded: true,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _gender = newValue;
+                                  state.didChange(newValue);
+                                });
+                              },
+                              items: ['Nam', 'Nữ', 'Khác'].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+
+                    // Chiều cao và cân nặng
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _heightController,
+                            decoration: InputDecoration(
+                              labelText: 'Chiều cao (cm)',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(Icons.height),
+                              suffixText: 'cm',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        SizedBox(width: 16.0),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _weightController,
+                            decoration: InputDecoration(
+                              labelText: 'Cân nặng (kg)',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(Icons.line_weight),
+                              suffixText: 'kg',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 24.0),
+
+                    // Nút lưu thông tin
+                    Container(
+                      width: double.infinity,
+                      height: 50.0,
+                      child: ElevatedButton(
+                        onPressed: _saveProfile,
+                        child: Text(
+                          'Lưu thông tin',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey[800],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData prefixIcon,
-    String? Function(String?)? validator,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-    String? suffixText,
-    bool readOnly = false,
-    VoidCallback? onTap,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: Icon(prefixIcon, color: Color(0xFF30C9B7)),
-        suffixText: suffixText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Color(0xFF30C9B7), width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade300),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade300, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-      validator: validator,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      readOnly: readOnly,
-      onTap: onTap,
-      style: TextStyle(fontSize: 16),
-    );
-  }
-
-  Widget _buildDropdown({
-    required List<String> items,
-    required String value,
-    required ValueChanged<String?> onChanged,
-    required IconData prefixIcon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          value: value,
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            prefixIcon: Icon(prefixIcon, color: Color(0xFF30C9B7)),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          dropdownColor: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-          style: TextStyle(fontSize: 16, color: Colors.black87),
-        ),
-      ),
     );
   }
 }
