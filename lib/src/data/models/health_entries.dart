@@ -11,8 +11,14 @@ class HeartRateEntry {
   
   factory HeartRateEntry.fromMap(Map<String, dynamic> map) {
     return HeartRateEntry(
-      time: (map['time'] as Timestamp).toDate(),
-      value: map['value']?.toDouble() ?? 0.0,
+      time: map['time'] != null
+          ? (map['time'] is Timestamp
+              ? (map['time'] as Timestamp).toDate()
+              : DateTime.tryParse(map['time'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+      value: map['value'] is int
+          ? (map['value'] as int).toDouble()
+          : map['value']?.toDouble() ?? 0.0,
     );
   }
 
@@ -37,7 +43,9 @@ class BloodPressureEntry {
 
   factory BloodPressureEntry.fromMap(Map<String, dynamic> map) {
     return BloodPressureEntry(
-      time: (map['time'] as Timestamp).toDate(),
+      time: map['time'] != null && map['time'] is Timestamp
+          ? (map['time'] as Timestamp).toDate()
+          : DateTime.tryParse(map['time'].toString()) ?? DateTime.now(),
       systolic: map['systolic'] ?? 0,
       diastolic: map['diastolic'] ?? 0,
     );
@@ -72,12 +80,41 @@ class FoodEntry {
   });
 
   factory FoodEntry.fromMap(Map<String, dynamic> map) {
+    // Xử lý calories - có thể là int hoặc double từ Firestore
+    double calories = 0.0;
+    if (map['calories'] != null) {
+      calories = map['calories'] is int
+          ? (map['calories'] as int).toDouble()
+          : map['calories']?.toDouble() ?? 0.0;
+    }
+
+    // Xử lý macros
+    Map<String, double>? macrosMap;
+    if (map['macros'] != null) {
+      macrosMap = {};
+      (map['macros'] as Map<String, dynamic>).forEach((key, value) {
+        if (value is int) {
+          macrosMap![key] = value.toDouble();
+        } else if (value is double) {
+          macrosMap![key] = value;
+        }
+      });
+    }
+
+    // Xử lý quantity
+    double? quantity;
+    if (map['quantity'] != null) {
+      quantity = map['quantity'] is int
+          ? (map['quantity'] as int).toDouble()
+          : map['quantity']?.toDouble();
+    }
+
     return FoodEntry(
       name: map['name'] ?? '',
-      calories: map['calories']?.toDouble() ?? 0.0,
+      calories: calories,
       mealType: map['mealType'],
-      macros: map['macros'] != null ? Map<String, double>.from(map['macros']) : null,
-      quantity: map['quantity']?.toDouble(),
+      macros: macrosMap,
+      quantity: quantity,
       unit: map['unit'],
       loggedAt: (map['loggedAt'] as Timestamp).toDate(),
     );
@@ -116,11 +153,19 @@ class WorkoutEntry {
   });
 
   factory WorkoutEntry.fromMap(Map<String, dynamic> map) {
+    // Xử lý caloriesBurned - có thể là int hoặc double từ Firestore
+    double? caloriesBurned;
+    if (map['caloriesBurned'] != null) {
+      caloriesBurned = map['caloriesBurned'] is int
+          ? (map['caloriesBurned'] as int).toDouble()
+          : map['caloriesBurned']?.toDouble();
+    }
+
     return WorkoutEntry(
       name: map['name'] ?? '',
       type: map['type'] ?? '',
       durationMinutes: map['durationMinutes'],
-      caloriesBurned: map['caloriesBurned']?.toDouble(),
+      caloriesBurned: caloriesBurned,
       sets: map['sets'] != null ? List<Map<String, dynamic>>.from(map['sets']) : null,
       intensity: map['intensity'],
       loggedAt: (map['loggedAt'] as Timestamp).toDate(),

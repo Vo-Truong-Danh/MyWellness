@@ -17,7 +17,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final List<Map<String, dynamic>> commonFoods = [
     {
       'name': 'Cơm trắng',
-      'calories': 130,
+      'calories': 130, // Đã là int, sẽ được chuyển đổi sang double khi sử dụng
       'portion': '1 chén',
       'image': 'assets/images/rice.png'
     },
@@ -214,59 +214,128 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(food['name']),
+              title: Text(food['name'], style: TextStyle(fontWeight: FontWeight.bold)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('${food['calories']} kcal / ${food['portion']}'),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${food['calories']} kcal / ${food['portion']}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
                   SizedBox(height: 20),
-                  Text('Số lượng:'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove),
-                        onPressed: quantity > 1 ? () {
-                          setState(() {
-                            quantity--;
-                          });
-                        } : null,
-                      ),
-                      Text(
-                        '$quantity',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () {
-                          setState(() {
-                            quantity++;
-                          });
-                        },
-                      ),
-                    ],
+                  Text('Số lượng:', style: TextStyle(fontWeight: FontWeight.w500)),
+                  SizedBox(height: 10),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Colors.grey[100],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline, color: Color(0xFF30C9B7)),
+                          onPressed: quantity > 1 ? () {
+                            setState(() {
+                              quantity--;
+                            });
+                          } : null,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Color(0xFF30C9B7), width: 1),
+                          ),
+                          child: Text(
+                            '$quantity',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add_circle_outline, color: Color(0xFF30C9B7)),
+                          onPressed: () {
+                            setState(() {
+                              quantity++;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              backgroundColor: Colors.white,
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Hủy'),
+                  child: Text('Hủy', style: TextStyle(color: Colors.grey[700])),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF30C9B7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   onPressed: () {
                     // Thêm món ăn vào nhật ký
+                    Navigator.pop(context); // Đóng dialog trước
+
                     _addFoodToLog(
                       food['name'],
-                      food['calories'] * quantity,
+                      // Xử lý an toàn cho các kiểu dữ liệu calories
+                      (() {
+                        dynamic calories = food['calories'];
+                        double caloriesValue = 0.0;
+                        if (calories == null) {
+                          caloriesValue = 0.0;
+                        } else if (calories is int) {
+                          caloriesValue = calories.toDouble();
+                        } else if (calories is double) {
+                          caloriesValue = calories;
+                        } else {
+                          try {
+                            caloriesValue = double.parse(calories.toString());
+                          } catch (e) {
+                            caloriesValue = 0.0;
+                          }
+                        }
+                        // Xử lý an toàn cho biến quantity
+                        double quantityValue;
+                        if (quantity == null) {
+                          quantityValue = 1.0; // Giá trị mặc định
+                        } else if (quantity is int) {
+                          quantityValue = quantity.toDouble();
+                        } else if (quantity is double) {
+                          quantityValue = quantity as double;
+                        } else {
+                          try {
+                            quantityValue = double.parse(quantity.toString());
+                          } catch (e) {
+                            quantityValue = 1.0; // Giá trị mặc định nếu parse lỗi
+                          }
+                        }
+                        return caloriesValue * quantityValue;
+                      })(),
                       selectedMealType,
                     );
-                    Navigator.pop(context);
                   },
-                  child: Text('Thêm', style: TextStyle(color: Colors.white)),
+                  child: Text('Thêm', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -293,14 +362,20 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                   controller: nameController,
                   decoration: InputDecoration(
                     labelText: 'Tên món ăn',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 15),
                 TextField(
                   controller: caloriesController,
                   decoration: InputDecoration(
                     labelText: 'Calories',
                     suffixText: 'kcal',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -308,6 +383,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Bữa ăn',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   value: selectedMealType,
                   onChanged: (newValue) {
@@ -325,6 +403,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
               ],
             ),
           ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -333,17 +414,21 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF30C9B7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () {
                 if (nameController.text.isNotEmpty && caloriesController.text.isNotEmpty) {
+                  Navigator.pop(context); // Đóng dialog trước
+
                   // Thêm món ăn vào nhật ký
                   _addFoodToLog(
                     nameController.text,
-                    double.tryParse(caloriesController.text) ?? 0,
+                    double.tryParse(caloriesController.text) ?? 0.0, // Đảm bảo là double
                     selectedMealType,
                   );
                 }
-                Navigator.pop(context);
               },
               child: Text('Thêm', style: TextStyle(color: Colors.white)),
             ),
@@ -357,31 +442,82 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
     final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
+    // Hiển thị thông báo loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF30C9B7)),
+                ),
+                SizedBox(width: 20),
+                Text('Đang thêm món ăn...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     healthProvider.addFoodEntry(
       name,
       calories,
       mealType,
       null, // macros
       dateProvider.selectedDate,
-    ).then((success) {
+    ).then((success) async {
+      // Đóng hộp thoại loading
+      Navigator.pop(context);
+
       if (success) {
+        // Hiển thị thông báo thành công
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Đã thêm $name vào nhật ký'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
 
-        // Quay lại màn hình trước đó
-        Navigator.pop(context);
+        // Chờ một chút để đảm bảo dữ liệu được lưu đầy đủ
+        await Future.delayed(Duration(milliseconds: 300));
+
+        // Sau khi thêm thành công, làm mới dữ liệu cho ngày đã chọn
+        await healthProvider.loadDailyLog(dateProvider.selectedDate);
+
+        // Quay lại màn hình trước đó và truyền kết quả thành công
+        Navigator.of(context).pop(true);
       } else {
+        // Hiển thị thông báo lỗi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Đã xảy ra lỗi khi thêm món ăn'),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
           ),
         );
       }
+    }).catchError((error) {
+      // Đóng hộp thoại loading nếu có lỗi
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      // Hiển thị thông báo lỗi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đã xảy ra lỗi: $error'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
     });
   }
 }

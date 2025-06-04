@@ -89,7 +89,7 @@ class _Account_Setting extends State<Account_Setting> {
                     Expanded(
                       flex: 1,
                       child: 
-                        Image.asset('assets/images/avtnull.gif')
+                        Image.asset('assets/images/brlogin.gif')
                     ),
                   ],
                 ),

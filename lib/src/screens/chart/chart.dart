@@ -320,7 +320,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     final calorieTarget = 2000.0;
 
     return List.generate(_demoCaloriesData.length, (index) {
-      final currentValue = _demoCaloriesData[index]['value'] as double;
+      final currentValue = (_demoCaloriesData[index]['value'] as num).toDouble();
       final color = currentValue >= calorieTarget ? Colors.red : Color(0xFF30C9B7);
 
       return BarChartGroupData(
@@ -416,7 +416,18 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
                   // Đường nhịp tim trung bình
                   LineChartBarData(
                     spots: List.generate(heartRateData.length, (index) {
-                      return FlSpot(index.toDouble(), heartRateData[index]['avg'] as double);
+                      final dynamic avgValue = heartRateData[index]['avg'];
+                      double doubleValue;
+                      if (avgValue == null) {
+                        doubleValue = 0.0;
+                      } else if (avgValue is int) {
+                        doubleValue = avgValue.toDouble();
+                      } else if (avgValue is double) {
+                        doubleValue = avgValue;
+                      } else {
+                        doubleValue = 0.0;
+                      }
+                      return FlSpot(index.toDouble(), doubleValue);
                     }),
                     isCurved: true,
                     color: Color(0xFF30C9B7),
@@ -431,7 +442,18 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
                   // Đường nhịp tim tối đa
                   LineChartBarData(
                     spots: List.generate(heartRateData.length, (index) {
-                      return FlSpot(index.toDouble(), heartRateData[index]['max'] as double);
+                      final dynamic maxValue = heartRateData[index]['max'];
+                      double doubleValue;
+                      if (maxValue == null) {
+                        doubleValue = 0.0;
+                      } else if (maxValue is int) {
+                        doubleValue = maxValue.toDouble();
+                      } else if (maxValue is double) {
+                        doubleValue = maxValue;
+                      } else {
+                        doubleValue = 0.0;
+                      }
+                      return FlSpot(index.toDouble(), doubleValue);
                     }),
                     isCurved: true,
                     color: Colors.redAccent,
@@ -601,19 +623,19 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
                     x: index,
                     barRods: [
                       BarChartRodData(
-                        toY: item['water'] as double,
+                        toY: (item['water'] as num).toDouble(),
                         color: Colors.blue,
                         width: 8,
                         borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
                       ),
                       BarChartRodData(
-                        toY: item['steps'] as double,
+                        toY: (item['steps'] as num).toDouble(),
                         color: Colors.orange,
                         width: 8,
                         borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
                       ),
                       BarChartRodData(
-                        toY: item['habits'] as double,
+                        toY: (item['habits'] as num).toDouble(),
                         color: Colors.purple,
                         width: 8,
                         borderRadius: BorderRadius.vertical(top: Radius.circular(3)),

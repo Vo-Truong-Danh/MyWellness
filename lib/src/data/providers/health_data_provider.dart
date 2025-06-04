@@ -33,7 +33,17 @@ class HealthDataProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
-    _dailyLog = await _service.getDailyLog(date);
+    try {
+      _dailyLog = await _service.getDailyLog(date);
+      print("Đã tải nhật ký cho ngày: ${DateFormat('yyyy-MM-dd').format(date)}");
+      if (_dailyLog != null) {
+        print("Đã tìm thấy dữ liệu: ${_dailyLog!.nutritionLogs?.length ?? 0} món ăn, ${_dailyLog!.workoutLogs?.length ?? 0} bài tập");
+      } else {
+        print("Không tìm thấy dữ liệu cho ngày này");
+      }
+    } catch (e) {
+      print("Lỗi khi tải nhật ký: $e");
+    }
 
     _loading = false;
     notifyListeners();

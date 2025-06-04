@@ -34,37 +34,63 @@ class DailyLog {
     List<HeartRateEntry>? heartRateEntries;
     if (data['heartRateReadings'] != null) {
       heartRateEntries = (data['heartRateReadings'] as List)
-        .map((entry) => HeartRateEntry.fromMap(entry))
+        .map((entry) => HeartRateEntry.fromMap(entry as Map<String, dynamic>))
         .toList();
     }
 
     List<BloodPressureEntry>? bloodPressureEntries;
     if (data['bloodPressureReadings'] != null) {
       bloodPressureEntries = (data['bloodPressureReadings'] as List)
-        .map((entry) => BloodPressureEntry.fromMap(entry))
+        .map((entry) => BloodPressureEntry.fromMap(entry as Map<String, dynamic>))
         .toList();
     }
 
     List<WorkoutEntry>? workoutEntries;
     if (data['workoutLogs'] != null) {
       workoutEntries = (data['workoutLogs'] as List)
-        .map((entry) => WorkoutEntry.fromMap(entry))
+        .map((entry) => WorkoutEntry.fromMap(entry as Map<String, dynamic>))
         .toList();
     }
 
     List<FoodEntry>? foodEntries;
     if (data['nutritionLogs'] != null) {
       foodEntries = (data['nutritionLogs'] as List)
-        .map((entry) => FoodEntry.fromMap(entry))
+        .map((entry) => FoodEntry.fromMap(entry as Map<String, dynamic>))
         .toList();
+    }
+
+    // Xử lý chuyển đổi kiểu dữ liệu đúng cách
+    double? currentWeight;
+    if (data['currentWeight'] != null) {
+      currentWeight = data['currentWeight'] is int
+          ? (data['currentWeight'] as int).toDouble()
+          : data['currentWeight']?.toDouble();
+    }
+
+    double? loggedCalories;
+    if (data['loggedCalories'] != null) {
+      loggedCalories = data['loggedCalories'] is int
+          ? (data['loggedCalories'] as int).toDouble()
+          : data['loggedCalories']?.toDouble();
+    }
+
+    double? currentWaterIntake;
+    if (data['currentWaterIntake'] != null) {
+      currentWaterIntake = data['currentWaterIntake'] is int
+          ? (data['currentWaterIntake'] as int).toDouble()
+          : data['currentWaterIntake']?.toDouble();
     }
 
     return DailyLog(
       id: doc.id,
-      date: data['date'] != null ? (data['date'] as Timestamp).toDate() : DateTime.now(),
-      currentWeight: data['currentWeight']?.toDouble(),
-      loggedCalories: data['loggedCalories']?.toDouble(),
-      currentWaterIntake: data['currentWaterIntake']?.toDouble(),
+      date: data['date'] != null
+        ? (data['date'] is Timestamp
+            ? (data['date'] as Timestamp).toDate()
+            : DateTime.tryParse(data['date'].toString()) ?? DateTime.now())
+        : DateTime.now(),
+      currentWeight: currentWeight,
+      loggedCalories: loggedCalories,
+      currentWaterIntake: currentWaterIntake,
       currentSteps: data['currentSteps'],
       heartRateReadings: heartRateEntries,
       bloodPressureReadings: bloodPressureEntries,
