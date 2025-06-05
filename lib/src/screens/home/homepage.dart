@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:my_wellness/src/core/recipe/identify_3_colors.dart';
-import 'package:my_wellness/src/screens/habits/addhabit.dart';
-import 'package:my_wellness/src/widget/add_options_bottom_sheet.dart';
-import 'package:my_wellness/src/widget/habitcountcheck.dart';
-import 'package:my_wellness/src/widget/habittaskcheck.dart';
-import 'package:my_wellness/src/widget/health_card_row.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:my_wellness/src/data/providers/health_data_provider.dart';
 import 'package:my_wellness/src/data/providers/selected_date_provider.dart';
 import 'package:my_wellness/src/screens/nutrition_tracking/add_food_screen.dart';
 import 'package:my_wellness/src/screens/workout_tracking/add_workout_screen.dart';
-import 'package:intl/intl.dart';
+import 'package:my_wellness/src/widget/add_options_bottom_sheet.dart';
+import 'package:my_wellness/src/widget/health_card_row.dart';
+import 'package:my_wellness/src/widget/habitcountcheck.dart';
+import 'package:my_wellness/src/widget/habittaskcheck.dart';
 
-// Key toàn cục để truy cập trạng thái của HomePage
+// Global key to access HomePage state
 final GlobalKey<_HomePageV2State> homePageKey = GlobalKey<_HomePageV2State>();
 
 class HomePage extends StatefulWidget {
-  // Đã sửa: Bỏ từ khóa 'const' vì homePageKey không phải là hằng số
   HomePage({Key? key}) : super(key: homePageKey);
 
-  // Thêm phương thức static để buộc refresh từ bất kỳ đâu
   static void refreshData() {
     if (homePageKey.currentState != null) {
       homePageKey.currentState!.refreshData();
-    } else {
-      debugPrint('HomePageKey currentState is null!');
     }
   }
 
@@ -36,552 +31,822 @@ class _HomePageV2State extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    // Tải dữ liệu người dùng và nhật ký sức khỏe khi màn hình khởi tạo
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        refreshData();
-      }
+      refreshData();
     });
   }
 
-  // Phương thức để làm mới dữ liệu
   void refreshData() {
-    if (!mounted) return;
-
     final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
     final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
-
-    // Tải thông tin người dùng
     healthProvider.loadUserData();
-
-    // Tải dữ liệu nhật ký sức khỏe
     healthProvider.loadDailyLog(dateProvider.selectedDate);
+    setState(() {});
+  }
 
-    // Force rebuild UI
-    if (mounted) {
-      setState(() {});
-    }
+  void _showUpdateHealthDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Cập nhật thể trạng'),
+        content: Text('Tính năng cập nhật thể trạng sẽ sớm được thêm vào.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Đóng'))
+        ],
+      ),
+    );
+  }
+
+  void _showAddOptionsDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AddOptionsBottomSheet(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Color(0xFF30C9B7);
+    final accentColor = Color(0xFF1E88E5);
+    final backgroundColor = Color(0xFFF5F5F5);
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFF30C9B7),
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.menu, size: 30, color: Colors.white),
-        ),
-        title: Text(
-          "Dữ liệu sức khỏe",
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 21,
-            color: Colors.white,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [primaryColor, primaryColor.withOpacity(0.8)],
+            ),
           ),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.favorite, color: Colors.white),
+            SizedBox(width: 8),
+            Text(
+              'Sức Khỏe Của Tôi',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              _showUpdateHealthDialog(context);
-            },
-            icon: Icon(Icons.update),
-            iconSize: 30,
-            color: Colors.white,
-            tooltip: 'Cập nhật thể trạng hiện tại',
+            icon: Icon(Icons.update, color: Colors.white),
+            onPressed: _showUpdateHealthDialog,
           ),
         ],
-        toolbarHeight: 60,
       ),
-      body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddOptionsDialog(context);
-        },
-        backgroundColor: Color(0xFF30C9B7),
-        tooltip: 'Thêm mới',
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-
-  Widget _buildBody() {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDateSelector(),
-            SizedBox(height: 20),
-            HealthCardRow(),
-            SizedBox(height: 20),
-            _buildSectionHeader('Hoạt động thể thao'),
-            _buildSportsCard(),
-            SizedBox(height: 20),
-            _buildSectionHeader('Nhật ký hôm nay'),
-            Consumer<HealthDataProvider>(
-              builder: (context, provider, child) {
-                if (provider.dailyLog == null ||
-                    (provider.dailyLog!.workoutLogs == null || provider.dailyLog!.workoutLogs!.isEmpty) &&
-                        (provider.dailyLog!.nutritionLogs == null || provider.dailyLog!.nutritionLogs!.isEmpty)) {
-                  return _buildEmptyState('Chưa có dữ liệu cho ngày hôm nay');
-                }
-
-                return Column(
-                  children: [
-                    // Hiển thị các bài tập đã ghi nhận
-                    if (provider.dailyLog!.workoutLogs != null && provider.dailyLog!.workoutLogs!.isNotEmpty)
-                      ..._buildWorkoutLogs(provider),
-                    SizedBox(height: 10),
-                    // Hiển thị các món ăn đã ghi nhận
-                    if (provider.dailyLog!.nutritionLogs != null && provider.dailyLog!.nutritionLogs!.isNotEmpty)
-                      ..._buildNutritionLogs(provider),
-                  ],
-                );
-              },
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            refreshData();
+            await Future.delayed(Duration(milliseconds: 500));
+          },
+          color: primaryColor,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDateSelector(),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HealthCardRow(),
+                      SizedBox(height: 24),
+                      _buildSectionHeader('Hoạt động thể thao', Icons.fitness_center),
+                      SizedBox(height: 10),
+                      _buildSportsCard(),
+                      SizedBox(height: 24),
+                      _buildSectionHeader('Nhật ký hôm nay', Icons.note_alt),
+                      SizedBox(height: 10),
+                      _buildDailyLogSection(),
+                      SizedBox(height: 24),
+                      _buildSectionHeader('Thói quen', Icons.repeat),
+                      SizedBox(height: 10),
+                      _buildHabitsSection(),
+                      SizedBox(height: 50),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            _buildSectionHeader('Thói quen'),
-            SizedBox(height: 10.0),
-            HabitCountCheck(
-              fileImage: "assets/images/water_glass.png",
-              title: "Drink Water",
-              backgroundIconColor: Color.fromARGB(255, 87, 197, 248),
-            ),
-            SizedBox(height: 10.0),
-            HabitTaskCheck(
-              fileImage: "assets/images/exercise.png",
-              title: "Exercise",
-              backgroundIconColor: Color.fromARGB(255, 219, 189, 70),
-            ),
-            SizedBox(height: 50),
-          ],
+          ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showAddOptionsDialog,
+        backgroundColor: primaryColor,
+        icon: Icon(Icons.add),
+        label: Text('Thêm'),
+        elevation: 4,
+      ),
     );
   }
 
-  Widget _buildDateSelector() {
-    return Consumer<SelectedDateProvider>(
-      builder: (context, dateProvider, child) {
-        final selectedDate = dateProvider.selectedDate;
+  Widget _buildSectionHeader(String title, IconData icon) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, color: Color(0xFF30C9B7)),
+            SizedBox(width: 8),
+            Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      );
 
-        // Tính toán ngày đầu tuần (chủ nhật) dựa vào ngày đang chọn
-        final startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
-        final List<DateTime> weekDates = List.generate(
-          7,
-              (i) => startOfWeek.add(Duration(days: i)),
+  Widget _buildDailyLogSection() {
+    final primaryColor = Color(0xFF30C9B7);
+
+    return Consumer<HealthDataProvider>(
+      builder: (_, provider, __) {
+        final log = provider.dailyLog;
+        if (log == null || ((log.workoutLogs?.isEmpty ?? true) && (log.nutritionLogs?.isEmpty ?? true))) {
+          return Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                Image.asset(
+                  'assets/images/diet.png',
+                  height: 60,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Chưa có dữ liệu cho ngày hôm nay',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade800),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => AddFoodScreen()),
+                        );
+                      },
+                      icon: Icon(Icons.restaurant_menu, size: 16),
+                      label: Text('Thêm thực phẩm'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primaryColor,
+                        side: BorderSide(color: primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => AddWorkoutScreen()),
+                        );
+                      },
+                      icon: Icon(Icons.fitness_center, size: 16),
+                      label: Text('Thêm bài tập'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primaryColor,
+                        side: BorderSide(color: primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        List<Widget> items = [];
+
+        // Hiển thị tiêu đề phần nếu có dữ liệu tương ứng
+        if (log.workoutLogs != null && log.workoutLogs!.isNotEmpty) {
+          items.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0, top: 4.0),
+              child: Row(
+                children: [
+                  Icon(Icons.fitness_center, color: Colors.orange.shade700, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Hoạt động thể thao',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+          items.addAll(_buildWorkoutLogs(provider));
+          items.add(SizedBox(height: 16));
+        }
+
+        if (log.nutritionLogs != null && log.nutritionLogs!.isNotEmpty) {
+          items.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0, top: 4.0),
+              child: Row(
+                children: [
+                  Icon(Icons.restaurant, color: Colors.blue.shade700, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Dinh dưỡng',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+          items.addAll(_buildNutritionLogs(provider));
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              )
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: items,
+          ),
         );
+      },
+    );
+  }
 
-        return Column(
+  List<Widget> _buildWorkoutLogs(HealthDataProvider provider) => provider.dailyLog!.workoutLogs!.map((w) {
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            leading: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.fitness_center, color: Colors.orange),
+            ),
+            title: Text(
+              w.name,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              '${w.type} • ${w.durationMinutes} phút',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '-${w.caloriesBurned?.toInt() ?? 0}',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  'kcal',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList();
+
+  List<Widget> _buildNutritionLogs(HealthDataProvider provider) => provider.dailyLog!.nutritionLogs!.map((f) {
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            leading: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.restaurant, color: Colors.blue),
+            ),
+            title: Text(
+              f.name,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              f.mealType ?? '',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '+${f.calories.toInt()}',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  'kcal',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList();
+
+  Widget _buildDateSelector() {
+    return Consumer<SelectedDateProvider>(builder: (context, dp, child) {
+      final selected = dp.selectedDate;
+      final today = DateTime.now();
+      final start = selected.subtract(Duration(days: selected.weekday % 7));
+      final week = List.generate(7, (i) => start.add(Duration(days: i)));
+      final primaryColor = Color(0xFF30C9B7);
+
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [primaryColor, primaryColor.withOpacity(0.7)],
+          ),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Nút điều hướng qua tuần trước
                 IconButton(
-                  icon: Icon(Icons.arrow_back_ios),
-                  onPressed: () => dateProvider.previousWeek(),
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: dp.previousWeek,
                 ),
-
-                // Hiển thị tháng hiện tại
-                Text(
-                  dateProvider.getFormattedMonth(),
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                ),
-
-                // Nút quay về ngày hôm nay
-                TextButton(
-                  onPressed: () {
-                    dateProvider.setDate(DateTime.now());
-                    Provider.of<HealthDataProvider>(context, listen: false)
-                        .loadDailyLog(DateTime.now());
-                  },
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Text(
-                    "Hôm nay",
+                    DateFormat('MMMM yyyy').format(selected),
                     style: TextStyle(
-                      fontSize: 16.0,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF30C9B7),
+                      color: Colors.white
                     ),
                   ),
                 ),
-
-                // Nút điều hướng qua tuần sau
                 IconButton(
-                  icon: Icon(Icons.arrow_forward_ios),
-                  onPressed: () => dateProvider.nextWeek(),
+                  icon: Icon(Icons.arrow_forward_ios, color: Colors.white),
+                  onPressed: dp.nextWeek,
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: weekDates.map((date) {
-                bool isSelected = _isSameDay(date, selectedDate);
-                bool isToday = _isSameDay(date, DateTime.now());
+            SizedBox(height: 16),
+            SizedBox(
+              height: 76, // Tăng chiều cao từ 74px lên 90px
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: week.length,
+                itemBuilder: (context, index) {
+                  final date = week[index];
+                  final isSelected = date.year == selected.year && date.month == selected.month && date.day == selected.day;
+                  final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
 
-                return Expanded(
-                  child: GestureDetector(
+                  return GestureDetector(
                     onTap: () {
-                      dateProvider.setDate(date);
-                      Provider.of<HealthDataProvider>(context, listen: false)
-                          .loadDailyLog(date);
+                      dp.setDate(date);
+                      Provider.of<HealthDataProvider>(context, listen: false).loadDailyLog(date);
                     },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      margin: EdgeInsets.symmetric(horizontal: 6),
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                       decoration: BoxDecoration(
-                        color: isSelected ? Color(0xFF30C9B7).withOpacity(0.2) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                        border: isToday && !isSelected ?
-                        Border.all(color: Color(0xFF30C9B7)) : null,
+                        color: isSelected ? Colors.white : Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: isSelected ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          )
+                        ] : null,
                       ),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _getWeekdayLabel(date.weekday),
+                            DateFormat('E').format(date),
                             style: TextStyle(
-                              fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? Color(0xFF30C9B7) :
-                              isToday ? Colors.black : Colors.grey,
+                              color: isSelected ? primaryColor : Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${date.day}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Color(0xFF30C9B7) : Colors.black,
+                          SizedBox(height: 6),
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isToday && !isSelected ? Colors.white.withOpacity(0.3) : Colors.transparent,
+                            ),
+                            child: Center(
+                              child: Text(
+                                date.day.toString(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? primaryColor : Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                },
+              ),
             ),
-            SizedBox(height: 16),
-            Divider(),
           ],
-        );
-      },
-    );
-  }
-
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  String _getWeekdayLabel(int weekday) {
-    final labels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    return labels[weekday % 7];
+        ),
+      );
+    });
   }
 
   Widget _buildSportsCard() {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AddWorkoutScreen()),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: Offset(0, 2),
+    final primaryColor = Color(0xFF30C9B7);
+
+    return Consumer<HealthDataProvider>(
+      builder: (_, provider, __) {
+        final workouts = provider.dailyLog?.workoutLogs;
+        if (workouts == null || workouts.isEmpty) {
+          return Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                )
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Color(0xFF30C9B7).withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.fitness_center,
-                color: Color(0xFF30C9B7),
-                size: 28,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Thêm bài tập',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+            child: Column(
+              children: [
+                Image.asset(
+                  'assets/images/exercise.png',
+                  height: 60,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Chưa có hoạt động thể thao hôm nay',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade800),
+                ),
+                SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => AddWorkoutScreen()),
+                    );
+                  },
+                  icon: Icon(Icons.add, color: Colors.white, size: 16),
+                  label: Text('Thêm hoạt động', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Ghi lại các hoạt động thể thao của bạn',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
-                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        int totalMin = workouts.fold(0, (sum, w) => sum + (w.durationMinutes ?? 0));
+        int totalCal = workouts.fold(0, (sum, w) => sum + (w.caloriesBurned?.toInt() ?? 0));
+
+        return Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _statItem(Icons.timer, '$totalMin', 'phút', Colors.blue),
+                  _statItem(Icons.whatshot, '$totalCal', 'kcal', Colors.orange),
+                  _statItem(Icons.fitness_center, '${workouts.length}', 'hoạt động', primaryColor),
                 ],
               ),
-            ),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-          ],
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.verified,
+                      color: primaryColor,
+                      size: 18,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Hoạt động đã hoàn thành',
+                      style: TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _statItem(IconData icon, String value, String label, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color),
         ),
-      ),
+        SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 
-  List<Widget> _buildWorkoutLogs(HealthDataProvider provider) {
-    final workouts = provider.dailyLog!.workoutLogs!;
+  Widget _buildHabitsSection() {
+    final primaryColor = Color(0xFF30C9B7);
 
-    return [
-      _buildSectionHeader('Bài tập', icon: Icons.fitness_center),
-      ...workouts.map((workout) => _buildWorkoutItem(workout)).toList(),
-    ];
-  }
-
-  Widget _buildWorkoutItem(workout) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: Offset(0, 1),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Color(0xFF30C9B7).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.fitness_center,
-              color: Color(0xFF30C9B7),
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  workout.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  workout.type + (workout.durationMinutes != null ? ' • ${workout.durationMinutes} phút' : ''),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${workout.caloriesBurned?.toInt() ?? 0} kcal',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                DateFormat('HH:mm').format(workout.loggedAt),
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildNutritionLogs(HealthDataProvider provider) {
-    final foods = provider.dailyLog!.nutritionLogs!;
-
-    return [
-      _buildSectionHeader('Nhật ký ăn uống', icon: Icons.restaurant),
-      ...foods.map((food) => _buildFoodItem(food)).toList(),
-    ];
-  }
-
-  Widget _buildFoodItem(food) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.restaurant,
-              color: Colors.orange,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  food.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  food.mealType ?? 'Bữa ăn',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${food.calories.toInt()} kcal',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                DateFormat('HH:mm').format(food.loggedAt),
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, {IconData? icon}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18, color: Colors.grey[700]),
-            SizedBox(width: 6),
-          ],
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Container(
-      height: 120,
-      alignment: Alignment.center,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.info_outline,
-            color: Colors.grey[400],
-            size: 40,
+          // Thói quen uống nước
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF57C5F8).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset(
+                    'assets/images/water_glass.png',
+                    height: 24,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Uống nước',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Duy trì cơ thể khỏe mạnh',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF57C5F8).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '5/8',
+                        style: TextStyle(
+                          color: Color(0xFF57C5F8),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.water_drop,
+                        color: Color(0xFF57C5F8),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 10),
-          Text(
-            message,
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 16,
+
+          Divider(height: 1),
+
+          // Thói quen tập thể dục
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFDBBD46).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset(
+                    'assets/images/exercise.png',
+                    height: 24,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tập thể dục',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Hôm nay 30 phút',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check,
+                    color: primaryColor,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Nút quản lý thói quen
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Tính năng quản lý thói quen đang được phát triển'),
+                    backgroundColor: primaryColor,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                minimumSize: Size(double.infinity, 44),
+              ),
+              child: Text('Quản lý thói quen'),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _showUpdateHealthDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const HealthMetricsBottomSheet(),
-    );
-  }
-
-  void _showAddOptionsDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AddOptionsBottomSheet(),
     );
   }
 }

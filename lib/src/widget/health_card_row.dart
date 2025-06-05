@@ -12,24 +12,39 @@ class HealthCardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<HealthDataProvider>(
       builder: (context, healthProvider, child) {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 2, child: _buildStepsCard(context, healthProvider)),
-            SizedBox(width: 16),
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  _buildHeartRateCard(context, healthProvider),
-                  SizedBox(height: 12),
-                  _buildBloodPressureCard(context, healthProvider),
-                  SizedBox(height: 12),
-                  _buildCalorieCard(context, healthProvider),
-                ],
-              ),
+        return RefreshIndicator(
+          onRefresh: () async {
+            await healthProvider.refreshData();
+            healthProvider.notifyListeners();
+          },
+          color: Color(0xFF30C9B7),
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 2, child: _buildStepsCard(context, healthProvider)),
+                    SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          _buildHeartRateCard(context, healthProvider),
+                          SizedBox(height: 12),
+                          _buildBloodPressureCard(context, healthProvider),
+                          SizedBox(height: 12),
+                          _buildCalorieCard(context, healthProvider),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 50),
+              ],
             ),
-          ],
+          ),
         );
       }
     );
@@ -70,7 +85,7 @@ class HealthCardRow extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 30),
           Center(
             child: SizedBox(
               width: 130,
@@ -126,12 +141,10 @@ class HealthCardRow extends StatelessWidget {
   }
 
   Widget _buildHeartRateCard(BuildContext context, HealthDataProvider healthProvider) {
-    // Lấy dữ liệu nhịp tim mới nhất
     final heartRate = healthProvider.getLatestHeartRate();
     final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
-    // Xác định màu sắc dựa trên giá trị nhịp tim
-    Color color = Colors.grey; // Màu mặc định khi không có dữ liệu
+    Color color = Colors.grey;
     if (heartRate != null) {
       if (heartRate < 60 || heartRate > 100) {
         color = Colors.red;
@@ -154,17 +167,24 @@ class HealthCardRow extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
       onTap: () async {
-        // Chỉ cho phép cập nhật nếu là ngày hiện tại
         if (dateProvider.isSelectedDateToday()) {
-          await showDialog(
+          // Hiển thị dialog và đợi kết quả
+          final result = await showDialog<bool>(
             context: context,
             builder: (context) => _buildHeartRateInputDialog(context),
           );
+
+          // Nếu dialog trả về true nghĩa là đã có dữ liệu được lưu thành công
+          if (result == true && context.mounted) {
+            // Tải lại dữ liệu và cập nhật UI
+            await healthProvider.refreshData();
+            Provider.of<HealthDataProvider>(context, listen: false).notifyListeners();
+          }
         } else {
-          // Hiển thị thông báo nếu không phải ngày hiện tại
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Chỉ có thể cập nhật nhịp tim cho ngày hôm nay'),
+              content: Text('Bạn chỉ có thể cập nhật nhịp tim cho ngày hiện tại'),
+              backgroundColor: Colors.orange,
               duration: Duration(seconds: 2),
             ),
           );
@@ -174,32 +194,25 @@ class HealthCardRow extends StatelessWidget {
   }
 
   Widget _buildBloodPressureCard(BuildContext context, HealthDataProvider healthProvider) {
-    // Lấy dữ liệu huyết áp mới nhất
     final bloodPressure = healthProvider.getLatestBloodPressure();
     final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
-    Color color = Colors.grey; // Màu mặc định khi không có dữ liệu
-    String displayText = 'N/A';
+    int? systolic;
+    int? diastolic;
+    Color color = Colors.grey;
 
     if (bloodPressure != null) {
-      displayText = '${bloodPressure.systolic}/${bloodPressure.diastolic}';
-
-      if (bloodPressure.systolic > 140 || bloodPressure.diastolic > 90 ||
-          bloodPressure.systolic < 90 || bloodPressure.diastolic < 60) {
-        color = Colors.red;
-      } else if (bloodPressure.systolic > 120 || bloodPressure.diastolic > 80) {
-        color = Colors.orange;
-      } else {
-        color = Colors.green;
-      }
+      systolic = bloodPressure.systolic;
+      diastolic = bloodPressure.diastolic;
+      color = _getBloodPressureColor(systolic, diastolic);
     }
 
     return _buildSmallInfoCard(
-      icon: Icons.bloodtype,
-      iconColor: Colors.blueAccent,
+      icon: Icons.monitor_heart_outlined,
+      iconColor: Colors.purpleAccent,
       label: 'BP',
       value: Text(
-        displayText,
+        bloodPressure != null ? '${bloodPressure.systolic}/${bloodPressure.diastolic}' : 'N/A',
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -208,17 +221,24 @@ class HealthCardRow extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
       onTap: () async {
-        // Chỉ cho phép cập nhật nếu là ngày hiện tại
         if (dateProvider.isSelectedDateToday()) {
-          await showDialog(
+          // Hiển thị dialog và đợi kết quả
+          final result = await showDialog<bool>(
             context: context,
             builder: (context) => _buildBloodPressureInputDialog(context),
           );
+
+          // Nếu dialog trả về true nghĩa là đã có dữ liệu được lưu thành công
+          if (result == true && context.mounted) {
+            // Tải lại dữ liệu và cập nhật UI
+            await healthProvider.refreshData();
+            Provider.of<HealthDataProvider>(context, listen: false).notifyListeners();
+          }
         } else {
-          // Hiển thị thông báo nếu không phải ngày hiện tại
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Chỉ có thể cập nhật huyết áp cho ngày hôm nay'),
+              content: Text('Bạn chỉ có thể cập nhật huyết áp cho ngày hiện tại'),
+              backgroundColor: Colors.orange,
               duration: Duration(seconds: 2),
             ),
           );
@@ -228,40 +248,43 @@ class HealthCardRow extends StatelessWidget {
   }
 
   Widget _buildCalorieCard(BuildContext context, HealthDataProvider healthProvider) {
-    // Lấy dữ liệu calories
     final calories = healthProvider.getTotalCalories();
-    final calorieTarget = healthProvider.userData?.dailyCalorieTarget ?? 1500.0;
-
-    Color color;
-    if (calories >= calorieTarget) {
-      color = Colors.red;
-    } else if (calories >= calorieTarget * 0.75) {
-      color = Colors.green;
-    } else if (calories >= calorieTarget * 0.35) {
-      color = Colors.orange;
-    } else {
-      color = Colors.red;
-    }
+    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
     return _buildSmallInfoCard(
       icon: Icons.local_fire_department,
       iconColor: Colors.orangeAccent,
-      label: 'Kcal',
+      label: 'CAL',
       value: Text(
-        '${calories.toInt()}',
+        '${calories.toInt()} kcal',
         style: TextStyle(
-          color: color,
           fontSize: 14,
           fontWeight: FontWeight.w600,
+          color: Colors.grey.shade700,
         ),
         textAlign: TextAlign.center,
       ),
-      onTap: () {
-        // Điều hướng đến màn hình thêm món ăn
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AddFoodScreen()),
-        );
+      onTap: () async {
+        if (dateProvider.isSelectedDateToday()) {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddFoodScreen(),
+            ),
+          );
+
+          if (context.mounted) {
+            final provider = Provider.of<HealthDataProvider>(context, listen: false);
+            provider.notifyListeners();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Bạn chỉ có thể thêm thực phẩm cho ngày hiện tại'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       },
     );
   }
@@ -270,45 +293,46 @@ class HealthCardRow extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required String label,
-    required Text value,
-    VoidCallback? onTap,
+    required Widget value,
+    required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(15.0),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.15),
-              spreadRadius: 1,
+              spreadRadius: 2,
               blurRadius: 5,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: iconColor, size: 22),
-                const SizedBox(height: 4),
+                Icon(icon, color: iconColor, size: 20),
+                SizedBox(width: 6),
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade600,
                   ),
                 ),
               ],
             ),
-            const SizedBox(width: 8),
-            Expanded(child: value),
+            SizedBox(height: 8),
+            value,
           ],
         ),
       ),
@@ -316,52 +340,69 @@ class HealthCardRow extends StatelessWidget {
   }
 
   Widget _buildHeartRateInputDialog(BuildContext context) {
-    double heartRate = 70;
+    double heartRate = 70.0;
     bool isSaving = false;
 
     return StatefulBuilder(
       builder: (context, setState) {
-        Color heartRateColor = _getHeartRateColor(heartRate);
-
         return AlertDialog(
-          title: Text('Cập nhật nhịp tim'),
+          title: Text('Nhập nhịp tim', style: TextStyle(color: Color(0xFF30C9B7))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${heartRate.toInt()}',
-                    style: TextStyle(
-                      fontSize: 40,
-                      color: heartRateColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(' bpm', style: TextStyle(fontSize: 20)),
-                ],
+              Text(
+                'Nhịp tim của bạn (nhịp trên phút):',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Text(
+                '${heartRate.toInt()}',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _getHeartRateColor(heartRate)),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: 10),
-              Slider(
-                value: heartRate,
-                min: 30,
-                max: 200,
-                divisions: 170,
-                activeColor: heartRateColor,
-                onChanged: (value) {
-                  setState(() {
-                    heartRate = value;
-                  });
-                },
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Color(0xFF30C9B7),
+                  inactiveTrackColor: Colors.grey.shade300,
+                  thumbColor: Color(0xFF30C9B7),
+                  overlayColor: Color(0xFF30C9B7).withOpacity(0.2),
+                ),
+                child: Slider(
+                  min: 40,
+                  max: 220,
+                  divisions: 180,
+                  value: heartRate,
+                  onChanged: isSaving ? null : (newValue) {
+                    setState(() {
+                      heartRate = newValue;
+                    });
+                  },
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('30', style: TextStyle(color: Colors.grey)),
-                  Text('200', style: TextStyle(color: Colors.grey)),
+                  Text('40', style: TextStyle(color: Colors.grey)),
+                  Text('220', style: TextStyle(color: Colors.grey)),
                 ],
               ),
+              SizedBox(height: 10),
+              if (heartRate < 60 || heartRate > 100)
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    heartRate < 60
+                      ? 'Nhịp tim thấp hơn mức bình thường (60-100 bpm)'
+                      : 'Nhịp tim cao hơn mức bình thường (60-100 bpm)',
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
             ],
           ),
           actions: [
@@ -382,13 +423,29 @@ class HealthCardRow extends StatelessWidget {
                 final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
                 final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
+                // Cập nhật UI ngay lập tức trước khi lưu vào cơ sở dữ liệu
+                final existingData = healthProvider.getLatestHeartRate();
+                if (context.mounted) {
+                  // Thông báo cho providers biết để cập nhật UI
+                  Provider.of<HealthDataProvider>(context, listen: false).notifyListeners();
+                }
+
                 bool success = await healthProvider.addHeartRateReading(
                   heartRate,
                   dateProvider.selectedDate,
                 );
 
                 if (success) {
-                  Navigator.pop(context);
+                  healthProvider.notifyListeners();
+                  Navigator.pop(context, true);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đã cập nhật nhịp tim thành công'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 } else {
                   setState(() {
                     isSaving = false;
@@ -428,65 +485,126 @@ class HealthCardRow extends StatelessWidget {
         Color bpColor = _getBloodPressureColor(systolic, diastolic);
 
         return AlertDialog(
-          title: Text('Cập nhật huyết áp'),
+          title: Text('Nhập huyết áp', style: TextStyle(color: Color(0xFF30C9B7))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text(
+                'Huyết áp của bạn (mmHg):',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$systolic / $diastolic',
-                    style: TextStyle(
-                      fontSize: 40,
-                      color: bpColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    '$systolic',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-                  Text(' mmHg', style: TextStyle(fontSize: 20)),
+                  Text(
+                    ' / ',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '$diastolic',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
+              SizedBox(height: 5),
+              Text(
+                'Tâm thu / Tâm trương',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
               SizedBox(height: 20),
-              Text('Tâm thu (Systolic)', style: TextStyle(fontWeight: FontWeight.bold)),
-              Slider(
-                value: systolic.toDouble(),
-                min: 70,
-                max: 200,
-                divisions: 130,
-                activeColor: bpColor,
-                onChanged: (value) {
-                  setState(() {
-                    systolic = value.toInt();
-                  });
-                },
+              Text(
+                'Tâm thu (Systolic):',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Color(0xFF30C9B7),
+                  inactiveTrackColor: Colors.grey.shade300,
+                  thumbColor: Color(0xFF30C9B7),
+                  overlayColor: Color(0xFF30C9B7).withOpacity(0.2),
+                ),
+                child: Slider(
+                  min: 80,
+                  max: 200,
+                  divisions: 120,
+                  value: systolic.toDouble(),
+                  onChanged: isSaving ? null : (newValue) {
+                    setState(() {
+                      systolic = newValue.toInt();
+                    });
+                  },
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('70', style: TextStyle(color: Colors.grey)),
-                  Text('200', style: TextStyle(color: Colors.grey)),
+                  Text('80', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text('200', style: TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
-              SizedBox(height: 20),
-              Text('Tâm trương (Diastolic)', style: TextStyle(fontWeight: FontWeight.bold)),
-              Slider(
-                value: diastolic.toDouble(),
-                min: 40,
-                max: 130,
-                divisions: 90,
-                activeColor: bpColor,
-                onChanged: (value) {
-                  setState(() {
-                    diastolic = value.toInt();
-                  });
-                },
+              SizedBox(height: 16),
+              Text(
+                'Tâm trương (Diastolic):',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Color(0xFF30C9B7),
+                  inactiveTrackColor: Colors.grey.shade300,
+                  thumbColor: Color(0xFF30C9B7),
+                  overlayColor: Color(0xFF30C9B7).withOpacity(0.2),
+                ),
+                child: Slider(
+                  min: 40,
+                  max: 120,
+                  divisions: 80,
+                  value: diastolic.toDouble(),
+                  onChanged: isSaving ? null : (newValue) {
+                    setState(() {
+                      diastolic = newValue.toInt();
+                    });
+                  },
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('40', style: TextStyle(color: Colors.grey)),
-                  Text('130', style: TextStyle(color: Colors.grey)),
+                  Text('40', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text('120', style: TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
+              ),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: bpColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.info_outline, color: bpColor, size: 20),
+                        SizedBox(width: 4),
+                        Text(
+                          _getBloodPressureMessage(systolic, diastolic),
+                          style: TextStyle(
+                            color: bpColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -508,6 +626,12 @@ class HealthCardRow extends StatelessWidget {
                 final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
                 final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
+                // Cập nhật UI ngay lập tức trước khi lưu vào cơ sở dữ liệu
+                if (context.mounted) {
+                  // Thông báo cho providers biết để cập nhật UI
+                  Provider.of<HealthDataProvider>(context, listen: false).notifyListeners();
+                }
+
                 bool success = await healthProvider.addBloodPressureReading(
                   systolic,
                   diastolic,
@@ -515,7 +639,16 @@ class HealthCardRow extends StatelessWidget {
                 );
 
                 if (success) {
-                  Navigator.pop(context);
+                  healthProvider.notifyListeners();
+                  Navigator.pop(context, true); // Trả về true để biết đã lưu thành công
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đã cập nhật huyết áp thành công'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 } else {
                   setState(() {
                     isSaving = false;
@@ -543,6 +676,18 @@ class HealthCardRow extends StatelessWidget {
         );
       }
     );
+  }
+
+  String _getBloodPressureMessage(int systolic, int diastolic) {
+    if (systolic > 140 || diastolic > 90) {
+      return 'Huyết áp cao';
+    } else if (systolic < 90 || diastolic < 60) {
+      return 'Huyết áp thấp';
+    } else if (systolic > 120 || diastolic > 80) {
+      return 'Hơi cao (tiền cao huyết áp)';
+    } else {
+      return 'Huyết áp bình thường';
+    }
   }
 
   Color _getHeartRateColor(double hr) {
