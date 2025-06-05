@@ -17,6 +17,12 @@ class HealthDataProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
+  // Dữ liệu tạm thời để hỗ trợ chức năng hoàn tác
+  WorkoutEntry? _lastDeletedWorkout;
+  FoodEntry? _lastDeletedNutrition;
+  int? _lastDeletedWorkoutIndex;
+  int? _lastDeletedNutritionIndex;
+
   // Lấy thông tin người dùng
   Future<void> loadUserData() async {
     _loading = true;
@@ -172,6 +178,7 @@ class HealthDataProvider extends ChangeNotifier {
   Future<bool> addFoodEntry(String name, double calories, String? mealType,
       Map<String, double>? macros, DateTime date) async {
     final foodEntry = FoodEntry(
+      id: DateTime.now().millisecondsSinceEpoch.toString(), // Add ID
       name: name,
       calories: calories,
       mealType: mealType,
@@ -190,6 +197,7 @@ class HealthDataProvider extends ChangeNotifier {
   Future<bool> addWorkoutEntry(String name, String type, int? durationMinutes,
       double? caloriesBurned, String? intensity, DateTime date) async {
     final workoutEntry = WorkoutEntry(
+      id: DateTime.now().millisecondsSinceEpoch.toString(), // Add ID
       name: name,
       type: type,
       durationMinutes: durationMinutes,
@@ -203,6 +211,162 @@ class HealthDataProvider extends ChangeNotifier {
       await loadDailyLog(date); // Tải lại dữ liệu
     }
     return success;
+  }
+
+  // Xóa workout
+  Future<void> deleteWorkout(WorkoutEntry workout) async {
+    if (_dailyLog != null && _dailyLog!.workoutLogs != null) {
+      final index = _dailyLog!.workoutLogs!.indexWhere((w) => w.id == workout.id);
+      if (index != -1) {
+        // Lưu lại để hoàn tác nếu cần
+        _lastDeletedWorkout = _dailyLog!.workoutLogs![index];
+        _lastDeletedWorkoutIndex = index;
+
+        // Tạo danh sách mới và xóa mục
+        List<WorkoutEntry> updatedLogs = List.from(_dailyLog!.workoutLogs!);
+        updatedLogs.removeAt(index);
+
+        // Tạo DailyLog mới với danh sách đã cập nhật
+        _dailyLog = DailyLog(
+          id: _dailyLog!.id,
+          date: _dailyLog!.date,
+          currentWeight: _dailyLog!.currentWeight,
+          loggedCalories: _dailyLog!.loggedCalories,
+          currentWaterIntake: _dailyLog!.currentWaterIntake,
+          currentSteps: _dailyLog!.currentSteps,
+          heartRateReadings: _dailyLog!.heartRateReadings,
+          bloodPressureReadings: _dailyLog!.bloodPressureReadings,
+          workoutLogs: updatedLogs,
+          nutritionLogs: _dailyLog!.nutritionLogs,
+          habitCompletions: _dailyLog!.habitCompletions,
+        );
+
+        await _service.deleteWorkout(workout.id ?? '', _dailyLog!.date);
+        notifyListeners();
+      }
+    }
+  }
+
+  // Khôi phục workout đã xóa
+  void undoDeleteWorkout() {
+    if (_lastDeletedWorkout != null && _lastDeletedWorkoutIndex != null && _dailyLog != null) {
+      // Tạo danh sách mới từ danh sách hiện tại
+      List<WorkoutEntry> updatedLogs = List.from(_dailyLog!.workoutLogs ?? []);
+
+      // Chèn mục đã xóa vào vị trí cũ
+      if (_lastDeletedWorkoutIndex! <= updatedLogs.length) {
+        updatedLogs.insert(_lastDeletedWorkoutIndex!, _lastDeletedWorkout!);
+      } else {
+        updatedLogs.add(_lastDeletedWorkout!);
+      }
+
+      // Tạo DailyLog mới với danh sách đã cập nhật
+      _dailyLog = DailyLog(
+        id: _dailyLog!.id,
+        date: _dailyLog!.date,
+        currentWeight: _dailyLog!.currentWeight,
+        loggedCalories: _dailyLog!.loggedCalories,
+        currentWaterIntake: _dailyLog!.currentWaterIntake,
+        currentSteps: _dailyLog!.currentSteps,
+        heartRateReadings: _dailyLog!.heartRateReadings,
+        bloodPressureReadings: _dailyLog!.bloodPressureReadings,
+        workoutLogs: updatedLogs,
+        nutritionLogs: _dailyLog!.nutritionLogs,
+        habitCompletions: _dailyLog!.habitCompletions,
+      );
+
+      // Khôi phục trong cơ sở dữ liệu - thêm WorkoutEntry mới thay vì các tham số riêng lẻ
+      _service.addWorkoutEntry(_lastDeletedWorkout!, _dailyLog!.date);
+
+      // Xóa dữ liệu tạm
+      _lastDeletedWorkout = null;
+      _lastDeletedWorkoutIndex = null;
+
+      notifyListeners();
+    }
+  }
+
+  // Xóa món ăn
+  Future<void> deleteNutrition(FoodEntry nutrition) async {
+    if (_dailyLog != null && _dailyLog!.nutritionLogs != null) {
+      final index = _dailyLog!.nutritionLogs!.indexWhere((n) => n.id == nutrition.id);
+      if (index != -1) {
+        // Lưu lại để hoàn tác nếu cần
+        _lastDeletedNutrition = _dailyLog!.nutritionLogs![index];
+        _lastDeletedNutritionIndex = index;
+
+        // Tạo danh sách mới và xóa mục
+        List<FoodEntry> updatedLogs = List.from(_dailyLog!.nutritionLogs!);
+        updatedLogs.removeAt(index);
+
+        // Tính lại tổng calories nếu cần
+        double newTotalCalories = _dailyLog!.loggedCalories ?? 0;
+        if (nutrition.calories > 0) {
+          newTotalCalories -= nutrition.calories;
+          if (newTotalCalories < 0) newTotalCalories = 0;
+        }
+
+        // Tạo DailyLog mới với danh sách đã cập nhật
+        _dailyLog = DailyLog(
+          id: _dailyLog!.id,
+          date: _dailyLog!.date,
+          currentWeight: _dailyLog!.currentWeight,
+          loggedCalories: newTotalCalories,
+          currentWaterIntake: _dailyLog!.currentWaterIntake,
+          currentSteps: _dailyLog!.currentSteps,
+          heartRateReadings: _dailyLog!.heartRateReadings,
+          bloodPressureReadings: _dailyLog!.bloodPressureReadings,
+          workoutLogs: _dailyLog!.workoutLogs,
+          nutritionLogs: updatedLogs,
+          habitCompletions: _dailyLog!.habitCompletions,
+        );
+
+        await _service.deleteNutrition(nutrition.id ?? '', _dailyLog!.date);
+        notifyListeners();
+      }
+    }
+  }
+
+  // Khôi phục món ăn đã xóa
+  void undoDeleteNutrition() {
+    if (_lastDeletedNutrition != null && _lastDeletedNutritionIndex != null && _dailyLog != null) {
+      // Tạo danh sách mới từ danh sách hiện tại
+      List<FoodEntry> updatedLogs = List.from(_dailyLog!.nutritionLogs ?? []);
+
+      // Chèn mục đã xóa vào vị trí cũ
+      if (_lastDeletedNutritionIndex! <= updatedLogs.length) {
+        updatedLogs.insert(_lastDeletedNutritionIndex!, _lastDeletedNutrition!);
+      } else {
+        updatedLogs.add(_lastDeletedNutrition!);
+      }
+
+      // Cập nhật tổng calories
+      double newTotalCalories = (_dailyLog!.loggedCalories ?? 0) + _lastDeletedNutrition!.calories;
+
+      // Tạo DailyLog mới với danh sách đã cập nhật
+      _dailyLog = DailyLog(
+        id: _dailyLog!.id,
+        date: _dailyLog!.date,
+        currentWeight: _dailyLog!.currentWeight,
+        loggedCalories: newTotalCalories,
+        currentWaterIntake: _dailyLog!.currentWaterIntake,
+        currentSteps: _dailyLog!.currentSteps,
+        heartRateReadings: _dailyLog!.heartRateReadings,
+        bloodPressureReadings: _dailyLog!.bloodPressureReadings,
+        workoutLogs: _dailyLog!.workoutLogs,
+        nutritionLogs: updatedLogs,
+        habitCompletions: _dailyLog!.habitCompletions,
+      );
+
+      // Khôi phục trong cơ sở dữ liệu - thêm FoodEntry mới thay vì các tham số riêng lẻ
+      _service.addFoodEntry(_lastDeletedNutrition!, _dailyLog!.date);
+
+      // Xóa dữ liệu tạm
+      _lastDeletedNutrition = null;
+      _lastDeletedNutritionIndex = null;
+
+      notifyListeners();
+    }
   }
 
   // Cập nhật cân nặng

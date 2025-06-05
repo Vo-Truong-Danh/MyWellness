@@ -345,6 +345,8 @@ class _HomePageV2State extends State<HomePage> {
   }
 
   List<Widget> _buildWorkoutLogs(HealthDataProvider provider) {
+    final primaryColor = Color(0xFF30C9B7);
+
     return provider.dailyLog!.workoutLogs!.asMap().entries.map((entry) {
       final index = entry.key;
       final w = entry.value;
@@ -368,86 +370,139 @@ class _HomePageV2State extends State<HomePage> {
                   ),
                 ],
               ),
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                leading: Container(
-                  padding: EdgeInsets.all(10),
+              child: Dismissible(
+                key: Key('workout-${w.id ?? index}'),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.only(right: 20),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    color: Colors.red.shade400,
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(Icons.fitness_center, color: Colors.orange),
+                  child: Icon(Icons.delete, color: Colors.white),
                 ),
-                title: Text(
-                  w.name,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.category,
-                          size: 14,
-                          color: Colors.grey.shade600,
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Xóa hoạt động thể thao'),
+                      content: Text('Bạn có chắc chắn muốn xóa hoạt động này?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text('Hủy'),
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          w.type ?? 'Không phân loại',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
-                          ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text('Xóa', style: TextStyle(color: Colors.red)),
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.timer,
-                          size: 14,
-                          color: Colors.grey.shade600,
+                  );
+                },
+                onDismissed: (direction) {
+                  // Delete workout entry
+                  provider.deleteWorkout(w);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đã xóa hoạt động thể thao'),
+                      backgroundColor: primaryColor,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      action: SnackBarAction(
+                        label: 'HOÀN TÁC',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          provider.undoDeleteWorkout();
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.fitness_center, color: Colors.orange),
+                  ),
+                  title: Text(
+                    w.name,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.category,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            w.type ?? 'Không phân loại',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.timer,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            '${w.durationMinutes} phút',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          '${w.durationMinutes} phút',
+                        child: Text(
+                          '-${w.caloriesBurned?.toInt() ?? 0} kcal',
                           style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
-                        '-${w.caloriesBurned?.toInt() ?? 0} kcal',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  isThreeLine: true,
                 ),
-                isThreeLine: true,
               ),
             ),
           ),
@@ -457,6 +512,9 @@ class _HomePageV2State extends State<HomePage> {
   }
 
   List<Widget> _buildNutritionLogs(HealthDataProvider provider) {
+    final primaryColor = Color(0xFF30C9B7);
+    final backgroundColor = Color(0xFFF5F5F5);
+
     return provider.dailyLog!.nutritionLogs!.asMap().entries.map((entry) {
       final index = entry.key;
       final f = entry.value;
@@ -469,7 +527,7 @@ class _HomePageV2State extends State<HomePage> {
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 6, horizontal: 2),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: backgroundColor.withOpacity(0.7), // Updated to match main background better
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.grey.shade100),
                 boxShadow: [
@@ -480,86 +538,134 @@ class _HomePageV2State extends State<HomePage> {
                   ),
                 ],
               ),
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                leading: Container(
-                  padding: EdgeInsets.all(10),
+              child: Dismissible(
+                key: Key('nutrition-${f.id ?? index}'),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.only(right: 20),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    color: Colors.red.shade400,
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(Icons.restaurant, color: Colors.blue),
+                  child: Icon(Icons.delete, color: Colors.white),
                 ),
-                title: Text(
-                  f.name,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.lunch_dining,
-                          size: 14,
-                          color: Colors.grey.shade600,
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Xóa bữa ăn'),
+                      content: Text('Bạn có chắc chắn muốn xóa bữa ăn này?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text('Hủy'),
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          f.mealType ?? 'Không ph��n loại',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
-                          ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text('Xóa', style: TextStyle(color: Colors.red)),
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.local_fire_department,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          '${f.calories.toInt()} calories',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
+                  );
+                },
+                onDismissed: (direction) {
+                  // Delete nutrition entry
+                  provider.deleteNutrition(f);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đã xóa bữa ăn'),
+                      backgroundColor: primaryColor,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      action: SnackBarAction(
+                        label: 'HOÀN TÁC',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          // Undo logic could be added here
+                          provider.undoDeleteNutrition();
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.restaurant, color: Colors.blue),
+                  ),
+                  title: Text(
+                    f.name,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.lunch_dining,
+                            size: 14,
+                            color: Colors.grey.shade600,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                          SizedBox(width: 4),
+                          Text(
+                            f.mealType ?? 'Không phân loại',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        '+${f.calories.toInt()} kcal',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.local_fire_department,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            '${f.calories.toInt()} calories',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '+${f.calories.toInt()} kcal',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                  ],
+                  ),
+                  isThreeLine: true,
                 ),
-                isThreeLine: true,
               ),
             ),
           ),
@@ -968,12 +1074,7 @@ class _HomePageV2State extends State<HomePage> {
                 children: [
                   _statItem(Icons.timer, '$totalMin', 'phút', Colors.blue),
                   _statItem(Icons.whatshot, '$totalCal', 'kcal', Colors.orange),
-                  _statItem(
-                    Icons.fitness_center,
-                    '${workouts.length}',
-                    'hoạt động',
-                    primaryColor,
-                  ),
+                  _statItem(Icons.fitness_center, '${workouts.length}', 'hoạt động', primaryColor),
                 ],
               ),
               SizedBox(height: 16),
@@ -1184,106 +1285,169 @@ class _HomePageV2State extends State<HomePage> {
     Color? completedColor,
     double? progress,
   }) {
-    return InkWell(
-      onTap: () {
-        // Xử lý khi nhấn vào thói quen
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Đã cập nhật thói quen: $title'),
-            backgroundColor: completedColor ?? Color(0xFF30C9B7),
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 1),
+    final primaryColor = Color(0xFF30C9B7);
+
+    return Dismissible(
+      key: Key('habit-$title'),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: Colors.red.shade400,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Xóa thói quen'),
+            content: Text('Bạn có chắc chắn muốn xóa thói quen này?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('H���y'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Xóa', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
         );
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.shade100, width: 1),
+      onDismissed: (direction) {
+        // Delete habit
+        // Ở đây cần thêm logic xóa thói quen khi đã tích hợp với cơ sở dữ liệu
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã xóa thói quen: $title'),
+            backgroundColor: primaryColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            action: SnackBarAction(
+              label: 'HOÀN TÁC',
+              textColor: Colors.white,
+              onPressed: () {
+                // Undo logic would be added here when implemented
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đã khôi phục thói quen: $title'),
+                    backgroundColor: primaryColor,
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (completedColor ?? Color(0xFF57C5F8)).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Image.asset(icon, height: 24),
+        );
+      },
+      child: InkWell(
+        onTap: () {
+          // Xử lý khi nhấn vào thói quen
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Đã cập nhật thói quen: $title'),
+              backgroundColor: completedColor ?? Color(0xFF30C9B7),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 1),
             ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                  // Thanh tiến trình nếu có
-                  if (progress != null) ...[
-                    SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        badgeColor ?? Color(0xFF57C5F8),
-                      ),
-                      minHeight: 5,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ],
-                ],
-              ),
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.grey.shade100, width: 1),
             ),
-            if (badgeText != null && badgeIcon != null)
+          ),
+          child: Row(
+            children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color:
-                      badgeColor?.withOpacity(0.1) ??
-                      Color(0xFF57C5F8).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      badgeText,
-                      style: TextStyle(
-                        color: badgeColor ?? Color(0xFF57C5F8),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(
-                      badgeIcon,
-                      color: badgeColor ?? Color(0xFF57C5F8),
-                      size: 16,
-                    ),
-                  ],
-                ),
-              )
-            else if (isCompleted)
-              Container(
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: (completedColor ?? Color(0xFF30C9B7)).withOpacity(0.1),
+                  color: (completedColor ?? Color(0xFF57C5F8)).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.check,
-                  color: completedColor ?? Color(0xFF30C9B7),
-                  size: 18,
+                child: Image.asset(icon, height: 24),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                    // Thanh tiến trình nếu có
+                    if (progress != null) ...[
+                      SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          badgeColor ?? Color(0xFF57C5F8),
+                        ),
+                        minHeight: 5,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-          ],
+              if (badgeText != null && badgeIcon != null)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:
+                        badgeColor?.withOpacity(0.1) ??
+                        Color(0xFF57C5F8).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        badgeText,
+                        style: TextStyle(
+                          color: badgeColor ?? Color(0xFF57C5F8),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        badgeIcon,
+                        color: badgeColor ?? Color(0xFF57C5F8),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                )
+              else if (isCompleted)
+                Container(
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: (completedColor ?? Color(0xFF30C9B7)).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check,
+                    color: completedColor ?? Color(0xFF30C9B7),
+                    size: 18,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

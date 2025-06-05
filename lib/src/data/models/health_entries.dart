@@ -61,6 +61,7 @@ class BloodPressureEntry {
 }
 
 class FoodEntry {
+  final String? id; // Add id property
   final String name;
   final double calories;
   final String? mealType; // breakfast, lunch, dinner, snack
@@ -70,6 +71,7 @@ class FoodEntry {
   final DateTime loggedAt;
 
   FoodEntry({
+    this.id, // Make it optional but accessible
     required this.name,
     required this.calories,
     this.mealType,
@@ -110,6 +112,7 @@ class FoodEntry {
     }
 
     return FoodEntry(
+      id: map['id'],
       name: map['name'] ?? '',
       calories: calories,
       mealType: map['mealType'],
@@ -122,6 +125,7 @@ class FoodEntry {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'calories': calories,
       'mealType': mealType,
@@ -134,6 +138,7 @@ class FoodEntry {
 }
 
 class WorkoutEntry {
+  final String? id; // Add id property
   final String name;
   final String type; // cardio, strength, flexibility
   final int? durationMinutes;
@@ -143,6 +148,7 @@ class WorkoutEntry {
   final DateTime loggedAt;
 
   WorkoutEntry({
+    this.id, // Make it optional but accessible
     required this.name,
     required this.type,
     this.durationMinutes,
@@ -162,6 +168,7 @@ class WorkoutEntry {
     }
 
     return WorkoutEntry(
+      id: map['id'],
       name: map['name'] ?? '',
       type: map['type'] ?? '',
       durationMinutes: map['durationMinutes'],
@@ -174,6 +181,7 @@ class WorkoutEntry {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'type': type,
       'durationMinutes': durationMinutes,

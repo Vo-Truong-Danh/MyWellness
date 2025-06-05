@@ -11,11 +11,12 @@ class AddWorkoutScreen extends StatefulWidget {
 class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   // Các loại bài tập
   final List<String> workoutTypes = ['Cardio', 'Sức mạnh', 'Linh hoạt', 'Khác'];
-  String selectedWorkoutType = 'Cardio';
+  String selectedWorkoutType = 'Cardio'; // Giá trị mặc định có thể là 'Tất cả' nếu bạn muốn
+  // Hoặc bạn có thể thêm 'Tất cả' vào workoutTypes và chọn nó làm mặc định
 
   // Các mức độ cường độ
   final List<String> intensityLevels = ['Nhẹ', 'Trung bình', 'Cao'];
-  String selectedIntensity = 'Trung bình';
+  // String selectedIntensity = 'Trung bình'; // Không cần thiết ở đây vì nó cục bộ cho dialog
 
   // Danh sách bài tập phổ biến
   final List<Map<String, dynamic>> commonWorkouts = [
@@ -23,7 +24,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       'name': 'Chạy bộ',
       'type': 'Cardio',
       'caloriesPerMinute': 10,
-      'image': 'assets/images/running.png'
+      'image': 'assets/images/running.png' // Đảm bảo bạn có ảnh này trong assets
     },
     {
       'name': 'Đạp xe',
@@ -78,6 +79,13 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Nếu bạn muốn 'Tất cả' là lựa chọn mặc định và hiển thị tất cả bài tập ban đầu
+    selectedWorkoutType = 'Tất cả';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -87,10 +95,11 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       ),
       body: Column(
         children: [
-          // Thanh tìm kiếm
+          // Thanh tìm kiếm (Chức năng tìm kiếm chưa được triển khai trong đoạn mã gốc)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              // controller: _searchController, // Cần thêm controller và logic tìm kiếm
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm bài tập...',
                 prefixIcon: Icon(Icons.search),
@@ -98,6 +107,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
+              // onChanged: (value) { // Thêm logic tìm kiếm tại đây },
             ),
           ),
 
@@ -108,7 +118,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildFilterChip('Tất cả'),
+                _buildFilterChip('Tất cả'), // Thêm chip 'Tất cả'
                 ...workoutTypes.map((type) => _buildFilterChip(type)).toList(),
               ],
             ),
@@ -120,7 +130,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Bài tập phổ biến',
+                selectedWorkoutType == 'Tất cả' ? 'Tất cả bài tập' : 'Bài tập ${selectedWorkoutType.toLowerCase()} phổ biến',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -135,7 +145,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
               padding: EdgeInsets.all(16),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.8,
+                childAspectRatio: 0.8, // Điều chỉnh tỷ lệ cho phù hợp với nội dung card
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
@@ -153,14 +163,16 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           _showAddManualWorkoutDialog(context);
         },
         backgroundColor: Color(0xFF30C9B7),
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white), // Thêm màu cho icon
         tooltip: 'Thêm thủ công',
       ),
     );
   }
 
   Widget _buildFilterChip(String type) {
-    bool isSelected = type == selectedWorkoutType || (type == 'Tất cả' && selectedWorkoutType == 'Tất cả');
+    // bool isSelected = type == selectedWorkoutType || (type == 'Tất cả' && selectedWorkoutType == 'Tất cả');
+    // Logic isSelected đơn giản hơn khi 'Tất cả' là một giá trị của selectedWorkoutType
+    bool isSelected = type == selectedWorkoutType;
 
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -173,7 +185,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           });
         },
         backgroundColor: Colors.grey[200],
-        selectedColor: Color(0xFF30C9B7).withOpacity(0.2),
+        selectedColor: Color(0xFF30C9B7).withOpacity(0.3), // Tăng độ đậm 1 chút
         checkmarkColor: Color(0xFF30C9B7),
         labelStyle: TextStyle(
           color: isSelected ? Color(0xFF30C9B7) : Colors.black87,
@@ -188,7 +200,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       onTap: () {
         if (workout['type'] == 'Sức mạnh') {
           _showStrengthWorkoutDialog(workout);
-        } else {
+        } else { // Cardio, Linh hoạt, Khác sẽ dùng chung dialog này hoặc tùy chỉnh thêm
           _showCardioWorkoutDialog(workout);
         }
       },
@@ -199,28 +211,46 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Căn chỉnh nội dung tốt hơn
             children: [
               Expanded(
                 child: Center(
-                  child: Icon(
-                    Icons.fitness_center,
-                    size: 60,
+                  child: workout['image'] != null && (workout['image'] as String).isNotEmpty
+                      ? Image.asset(
+                    workout['image'],
+                    fit: BoxFit.contain, // Hoặc BoxFit.cover tùy theo ảnh
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback nếu ảnh không load được
+                      return Icon(
+                        Icons.fitness_center,
+                        size: 50, // Giảm kích thước icon một chút
+                        color: Color(0xFF30C9B7),
+                      );
+                    },
+                  )
+                      : Icon(
+                    Icons.fitness_center, // Icon mặc định nếu không có ảnh
+                    size: 50,
                     color: Color(0xFF30C9B7),
                   ),
                 ),
               ),
+              SizedBox(height: 8),
               Text(
                 workout['name'],
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 4),
               Text(
                 '${workout['caloriesPerMinute']} kcal/phút',
                 style: TextStyle(
                   color: Colors.grey[600],
+                  fontSize: 12,
                 ),
               ),
               Text(
@@ -239,19 +269,18 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
 
   void _showCardioWorkoutDialog(Map<String, dynamic> workout) {
     int durationMinutes = 30;
-    String selectedIntensity = 'Trung bình';
+    String selectedIntensity = 'Trung bình'; // Mặc định
 
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // Tính toán lượng calo đốt cháy dựa trên thời gian và cường độ
+        return StatefulBuilder( // Dùng StatefulBuilder để cập nhật UI bên trong dialog
+          builder: (context, setStateDialog) {
             double intensityMultiplier = 1.0;
             if (selectedIntensity == 'Nhẹ') intensityMultiplier = 0.8;
             if (selectedIntensity == 'Cao') intensityMultiplier = 1.3;
 
-            double estimatedCalories = workout['caloriesPerMinute'] * durationMinutes * intensityMultiplier;
+            double estimatedCalories = (workout['caloriesPerMinute'] as num) * durationMinutes * intensityMultiplier;
 
             return AlertDialog(
               title: Text(workout['name']),
@@ -259,25 +288,18 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Thời gian (phút):'),
+                  Text('Th���i gian (phút): $durationMinutes phút'),
                   Slider(
                     value: durationMinutes.toDouble(),
                     min: 5,
                     max: 120,
-                    divisions: 23,
-                    label: durationMinutes.toString(),
+                    divisions: (120 - 5) ~/ 5, // Tính số lượng divisions chính xác
+                    label: durationMinutes.round().toString(),
                     onChanged: (value) {
-                      setState(() {
-                        durationMinutes = value.toInt();
+                      setStateDialog(() { // Cập nhật UI của dialog
+                        durationMinutes = value.round();
                       });
                     },
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('5 phút'),
-                      Text('120 phút'),
-                    ],
                   ),
                   SizedBox(height: 20),
                   Text('Cường độ:'),
@@ -285,9 +307,11 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                     value: selectedIntensity,
                     isExpanded: true,
                     onChanged: (String? newValue) {
-                      setState(() {
-                        selectedIntensity = newValue!;
-                      });
+                      if (newValue != null) {
+                        setStateDialog(() { // Cập nhật UI của dialog
+                          selectedIntensity = newValue;
+                        });
+                      }
                     },
                     items: intensityLevels
                         .map<DropdownMenuItem<String>>((String value) {
@@ -321,15 +345,15 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    // Thêm bài tập vào nhật ký
                     _addWorkoutToLog(
                       workout['name'],
                       workout['type'],
                       durationMinutes,
-                      estimatedCalories.toInt().toDouble(),
+                      estimatedCalories.toDouble(), // Calo đã tính toán
                       selectedIntensity,
+                      null, // không có sets cho cardio
                     );
-                    Navigator.pop(context);
+                    Navigator.pop(context); // Đóng dialog sau khi thêm
                   },
                   child: Text('Thêm'),
                 ),
@@ -343,199 +367,161 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
 
   void _showStrengthWorkoutDialog(Map<String, dynamic> workout) {
     List<Map<String, dynamic>> sets = [{'reps': 10, 'weight': 0.0}];
-    int durationMinutes = 30;
+    int durationMinutes = 30; // Thời gian mặc định cho bài tập sức mạnh
 
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // Tính toán lượng calo đốt cháy dựa trên thời gian
-            double estimatedCalories = workout['caloriesPerMinute'] * durationMinutes;
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          double estimatedCalories = ((workout['caloriesPerMinute'] as num) * durationMinutes).toDouble();
 
-            return AlertDialog(
-              title: Text(workout['name']),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Thời gian (phút):'),
-                    Slider(
-                      value: durationMinutes.toDouble(),
-                      min: 5,
-                      max: 120,
-                      divisions: 23,
-                      label: durationMinutes.toString(),
-                      onChanged: (value) {
-                        setState(() {
-                          durationMinutes = value.toInt();
-                        });
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    Text('Sets:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...List.generate(sets.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Text('Set ${index + 1}:'),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Số lần lặp:'),
-                                        Row(
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(Icons.remove, size: 18),
-                                              padding: EdgeInsets.zero,
-                                              constraints: BoxConstraints(),
-                                              onPressed: sets[index]['reps'] > 1
-                                                  ? () {
-                                                      setState(() {
-                                                        sets[index]['reps']--;
-                                                      });
-                                                    }
-                                                  : null,
-                                            ),
-                                            Text('${sets[index]['reps']}'),
-                                            IconButton(
-                                              icon: Icon(Icons.add, size: 18),
-                                              padding: EdgeInsets.zero,
-                                              constraints: BoxConstraints(),
-                                              onPressed: () {
-                                                setState(() {
-                                                  sets[index]['reps']++;
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+          return AlertDialog(
+            title: Text(workout['name']),
+            content: SingleChildScrollView( // Quan trọng khi nội dung có thể dài
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Thời gian (phút): $durationMinutes phút'),
+                  Slider(
+                    value: durationMinutes.toDouble(),
+                    min: 5,
+                    max: 120,
+                    divisions: (120 - 5) ~/ 5,
+                    label: durationMinutes.round().toString(),
+                    onChanged: (value) {
+                      setStateDialog(() {
+                        durationMinutes = value.round();
+                      });
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text('Sets:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...List.generate(sets.length, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Text('Set ${index + 1}: '),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text('Số lần (reps): ${sets[index]['reps']}'),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.remove_circle_outline, size: 20),
+                                      onPressed: (sets[index]['reps'] as num) > 1
+                                          ? () => setStateDialog(() => sets[index]['reps'] = (sets[index]['reps'] as num) - 1)
+                                          : null,
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Trọng lượng (kg):'),
-                                        Row(
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(Icons.remove, size: 18),
-                                              padding: EdgeInsets.zero,
-                                              constraints: BoxConstraints(),
-                                              onPressed: sets[index]['weight'] > 0
-                                                  ? () {
-                                                      setState(() {
-                                                        sets[index]['weight'] -= 2.5;
-                                                        if (sets[index]['weight'] < 0) {
-                                                          sets[index]['weight'] = 0;
-                                                        }
-                                                      });
-                                                    }
-                                                  : null,
-                                            ),
-                                            Text('${sets[index]['weight']}'),
-                                            IconButton(
-                                              icon: Icon(Icons.add, size: 18),
-                                              padding: EdgeInsets.zero,
-                                              constraints: BoxConstraints(),
-                                              onPressed: () {
-                                                setState(() {
-                                                  sets[index]['weight'] += 2.5;
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                    IconButton(
+                                      icon: Icon(Icons.add_circle_outline, size: 20),
+                                      onPressed: () => setStateDialog(() => sets[index]['reps'] = (sets[index]['reps'] as num) + 1),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                )
+                              ],
                             ),
-                            IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: sets.length > 1
-                                  ? () {
-                                      setState(() {
-                                        sets.removeAt(index);
-                                      });
-                                    }
-                                  : null,
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text('Tạ (kg): ${sets[index]['weight']}'),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.remove_circle_outline, size: 20),
+                                      onPressed: (sets[index]['weight'] as num) > 0
+                                          ? () => setStateDialog(() {
+                                        sets[index]['weight'] = (sets[index]['weight'] as num) - 2.5;
+                                        if ((sets[index]['weight'] as num) < 0) sets[index]['weight'] = 0.0;
+                                      })
+                                          : null,
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.add_circle_outline, size: 20),
+                                      onPressed: () => setStateDialog(() => sets[index]['weight'] = (sets[index]['weight'] as num) + 2.5),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    }),
-                    TextButton.icon(
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red, size: 20),
+                            onPressed: sets.length > 1
+                                ? () => setStateDialog(() => sets.removeAt(index))
+                                : null, // Không cho xóa nếu chỉ còn 1 set
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  Center( // Đặt nút "Thêm set" ở giữa
+                    child: TextButton.icon(
                       icon: Icon(Icons.add),
                       label: Text('Thêm set'),
                       onPressed: () {
-                        setState(() {
+                        setStateDialog(() {
                           sets.add({'reps': 10, 'weight': 0.0});
                         });
                       },
                     ),
-                    SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        'Ước tính: ${estimatedCalories.toInt()} kcal',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Color(0xFF30C9B7),
-                        ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      'Ước tính: ${estimatedCalories.toInt()} kcal',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFF30C9B7),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Hủy'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF30C9B7),
-                    foregroundColor: Colors.white,
                   ),
-                  onPressed: () {
-                    // Thêm bài tập vào nhật ký với thông tin về sets
-                    _addWorkoutToLog(
-                      workout['name'],
-                      workout['type'],
-                      durationMinutes,
-                      estimatedCalories.toInt().toDouble(),
-                      null,
-                      sets,
-                    );
-                    Navigator.pop(context);
-                  },
-                  child: Text('Thêm'),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Hủy'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF30C9B7),
+                  foregroundColor: Colors.white,
                 ),
-              ],
-            );
-          },
-        );
+                onPressed: () {
+                  _addWorkoutToLog(
+                    workout['name'],
+                    workout['type'],
+                    durationMinutes,
+                    estimatedCalories.toDouble(),
+                    null, // Không có cường độ cụ thể cho strength, hoặc bạn có thể thêm nếu muốn
+                    sets, // Truyền thông tin sets
+                  );
+                  Navigator.pop(context);
+                },
+                child: Text('Thêm'),
+              ),
+            ],
+          );
+        });
       },
     );
   }
 
   void _showAddManualWorkoutDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>(); // Thêm GlobalKey cho Form
     final nameController = TextEditingController();
     final caloriesController = TextEditingController();
     final durationController = TextEditingController(text: '30');
-    String selectedType = 'Cardio';
-    String selectedIntensity = 'Trung bình';
+    String selectedType = 'Cardio'; // Giá trị mặc định
+    String selectedIntensityForManual = 'Trung bình'; // Giá trị mặc định
 
     showDialog(
       context: context,
@@ -543,65 +529,87 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
         return AlertDialog(
           title: Text('Thêm bài tập thủ công'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Tên bài tập',
+            child: Form( // Sử dụng Form để validation
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField( // Sử dụng TextFormField để validation
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Tên bài tập'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập tên bài tập';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: 'Loại bài tập',
+                  SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(labelText: 'Loại bài tập'),
+                    value: selectedType,
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        // Không cần setState vì dialog sẽ rebuild khi chọn
+                        selectedType = newValue;
+                      }
+                    },
+                    items: workoutTypes.map<DropdownMenuItem<String>>((value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
                   ),
-                  value: selectedType,
-                  onChanged: (newValue) {
-                    selectedType = newValue!;
-                  },
-                  items: workoutTypes.map<DropdownMenuItem<String>>((value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: durationController,
-                  decoration: InputDecoration(
-                    labelText: 'Thời gian (phút)',
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: durationController,
+                    decoration: InputDecoration(labelText: 'Thời gian (phút)'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập thời gian';
+                      }
+                      if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                        return 'Thời gian không hợp lệ';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: caloriesController,
-                  decoration: InputDecoration(
-                    labelText: 'Calories đã đốt cháy',
-                    suffixText: 'kcal',
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: caloriesController,
+                    decoration: InputDecoration(
+                      labelText: 'Calories đã đốt cháy',
+                      suffixText: 'kcal',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      // Cho phép để trống nếu người dùng không biết chính xác
+                      if (value != null && value.isNotEmpty && (double.tryParse(value) == null || double.parse(value) < 0)) {
+                        return 'Số calories không hợp lệ';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: 'Cường độ',
+                  SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(labelText: 'Cường độ (nếu có)'),
+                    value: selectedIntensityForManual,
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        selectedIntensityForManual = newValue;
+                      }
+                    },
+                    items: intensityLevels.map<DropdownMenuItem<String>>((value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
                   ),
-                  value: selectedIntensity,
-                  onChanged: (newValue) {
-                    selectedIntensity = newValue!;
-                  },
-                  items: intensityLevels.map<DropdownMenuItem<String>>((value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           actions: [
@@ -615,18 +623,17 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                if (nameController.text.isNotEmpty &&
-                    durationController.text.isNotEmpty) {
-                  // Thêm bài tập vào nhật ký
+                if (_formKey.currentState!.validate()) { // Kiểm tra validation
                   _addWorkoutToLog(
                     nameController.text,
                     selectedType,
                     int.tryParse(durationController.text) ?? 30,
-                    double.tryParse(caloriesController.text) ?? 0,
-                    selectedIntensity,
+                    double.tryParse(caloriesController.text) ?? 0, // Mặc định là 0 nếu không nhập
+                    selectedIntensityForManual,
+                    null, // Không có sets cho thêm thủ công (trừ khi bạn muốn thêm)
                   );
+                  Navigator.pop(context);
                 }
-                Navigator.pop(context);
               },
               child: Text('Thêm'),
             ),
@@ -636,17 +643,19 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     );
   }
 
+  // *** PHẦN ĐƯỢC HOÀN THIỆN VÀ CẬP NHẬT ***
   void _addWorkoutToLog(
-    String name,
-    String type,
-    int durationMinutes,
-    double caloriesBurned,
-    String? intensity, [
-    List<Map<String, dynamic>>? sets,
-  ]) {
+      String name,
+      String type,
+      int durationMinutes,
+      double caloriesBurned,
+      String? intensity, [ // intensity có thể null
+        List<Map<String, dynamic>>? sets, // sets là tùy chọn, dùng cho bài tập sức mạnh
+      ]) {
     final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
     final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
 
+    // Gọi healthProvider.addWorkoutEntry với đầy đủ tham số, không bao gồm sets
     healthProvider.addWorkoutEntry(
       name,
       type,
@@ -658,21 +667,34 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đã thêm $name vào nhật ký'),
+            content: Text('Đã thêm "$name" vào nhật ký'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
-
-        // Quay lại màn hình trước đó
-        Navigator.pop(context);
+        // Thông thường, dialog đã được đóng bởi Navigator.pop(context) trong hàm gọi nó.
+        // Nếu bạn muốn thực hiện hành động nào khác sau khi thêm thành công, bạn có thể thêm ở đây.
       } else {
+        // Xử lý trường hợp thêm thất bại (ví dụ: server từ chối, dữ liệu không hợp lệ từ phía server)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đã xảy ra lỗi khi thêm bài tập'),
+            content: Text('Lỗi: Không thể thêm "$name". Vui lòng thử lại.'),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
           ),
         );
       }
+    }).catchError((error) {
+      // Xử lý các lỗi không mong muốn khác trong quá trình gọi (ví dụ: lỗi mạng)
+      print('Lỗi khi thêm bài tập: $error'); // Log lỗi để debug
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đã xảy ra lỗi hệ thống khi thêm bài tập. $error'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
     });
-  }
-}
+  } // Kết thúc hàm _addWorkoutToLog
+} // Kết thúc class _AddWorkoutScreenState
+

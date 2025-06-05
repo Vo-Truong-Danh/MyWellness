@@ -206,6 +206,102 @@ class HealthDataService {
     }
   }
 
+  // Xóa bài tập khỏi nhật ký
+  Future<bool> deleteWorkout(String workoutId, DateTime date) async {
+    if (currentUserId == null) return false;
+
+    String dateStr = DateFormat('yyyy-MM-dd').format(date);
+
+    try {
+      // Lấy dữ liệu hiện tại
+      DocumentSnapshot doc = await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('daily_logs')
+        .doc(dateStr)
+        .get();
+
+      if (!doc.exists) return false;
+
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      List<dynamic> workouts = data['workoutLogs'] ?? [];
+
+      // Lọc bỏ workout cần xóa
+      List<dynamic> updatedWorkouts = workouts.where((workout) {
+        return workout['id'] != workoutId;
+      }).toList();
+
+      // Cập nhật lại danh sách workout
+      await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('daily_logs')
+        .doc(dateStr)
+        .update({
+          'workoutLogs': updatedWorkouts,
+        });
+
+      return true;
+    } catch (e) {
+      print('Lỗi khi xóa bài tập: $e');
+      return false;
+    }
+  }
+
+  // Xóa món ăn khỏi nhật ký
+  Future<bool> deleteNutrition(String nutritionId, DateTime date) async {
+    if (currentUserId == null) return false;
+
+    String dateStr = DateFormat('yyyy-MM-dd').format(date);
+
+    try {
+      // Lấy dữ liệu hiện tại
+      DocumentSnapshot doc = await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('daily_logs')
+        .doc(dateStr)
+        .get();
+
+      if (!doc.exists) return false;
+
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      List<dynamic> nutritions = data['nutritionLogs'] ?? [];
+
+      // Tìm món ăn cần xóa để trừ calories
+      double caloriesToSubtract = 0;
+      for (var nutrition in nutritions) {
+        if (nutrition['id'] == nutritionId && nutrition['calories'] != null) {
+          caloriesToSubtract = (nutrition['calories'] is int)
+              ? (nutrition['calories'] as int).toDouble()
+              : nutrition['calories']?.toDouble() ?? 0;
+          break;
+        }
+      }
+
+      // Lọc bỏ món ăn cần xóa
+      List<dynamic> updatedNutritions = nutritions.where((nutrition) {
+        return nutrition['id'] != nutritionId;
+      }).toList();
+
+      // Cập nhật lại danh sách món ăn và giảm calories
+      await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('daily_logs')
+        .doc(dateStr)
+        .update({
+          'nutritionLogs': updatedNutritions,
+          'loggedCalories': FieldValue.increment(-caloriesToSubtract),
+        });
+
+      return true;
+    } catch (e) {
+      print('Lỗi khi xóa món ăn: $e');
+      return false;
+    }
+  }
+
   // Cập nhật cân nặng
   Future<bool> updateWeight(double weight, DateTime date) async {
     if (currentUserId == null) return false;
