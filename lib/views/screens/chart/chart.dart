@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:provider/provider.dart';
-import 'package:my_wellness/controllers/providers/health_data_provider.dart';
-import 'package:my_wellness/controllers/providers/selected_date_provider.dart';
-import 'package:my_wellness/models/daily_log.dart';
 import 'package:intl/intl.dart';
 
 class Chart extends StatefulWidget {
+  const Chart({super.key});
+
   @override
   _ChartState createState() => _ChartState();
 }

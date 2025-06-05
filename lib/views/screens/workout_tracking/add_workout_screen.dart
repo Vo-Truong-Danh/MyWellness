@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:my_wellness/controllers/providers/health_data_provider.dart';
 import 'package:my_wellness/controllers/providers/selected_date_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddWorkoutScreen extends StatefulWidget {
-  const AddWorkoutScreen({super.key});
-
   @override
   _AddWorkoutScreenState createState() => _AddWorkoutScreenState();
 }
@@ -13,10 +11,13 @@ class AddWorkoutScreen extends StatefulWidget {
 class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   // Các loại bài tập
   final List<String> workoutTypes = ['Cardio', 'Sức mạnh', 'Linh hoạt', 'Khác'];
-  String selectedWorkoutType = 'Cardio';
+  String selectedWorkoutType =
+      'Cardio'; // Giá trị mặc định có thể là 'Tất cả' nếu bạn muốn
+  // Hoặc bạn có thể thêm 'Tất cả' vào workoutTypes và chọn nó làm mặc định
 
   // Các mức độ cường độ
   final List<String> intensityLevels = ['Nhẹ', 'Trung bình', 'Cao'];
+  // String selectedIntensity = 'Trung bình'; // Không cần thiết ở đây vì nó cục bộ cho dialog
 
   // Danh sách bài tập phổ biến
   final List<Map<String, dynamic>> commonWorkouts = [
@@ -36,37 +37,37 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       'name': 'Bơi lội',
       'type': 'Cardio',
       'caloriesPerMinute': 12,
-      'image': 'assets/images/swimming.png',
+      'image': 'assets/images/swimme.gif',
     },
     {
       'name': 'Hít đất',
       'type': 'Sức mạnh',
       'caloriesPerMinute': 7,
-      'image': 'assets/images/pushup.png',
+      'image': 'assets/images/excercise_18512870.gif',
     },
     {
       'name': 'Gánh tạ',
       'type': 'Sức mạnh',
       'caloriesPerMinute': 9,
-      'image': 'assets/images/weightlifting.png',
+      'image': 'assets/images/weightlifting.gif',
     },
     {
       'name': 'Yoga',
       'type': 'Linh hoạt',
       'caloriesPerMinute': 5,
-      'image': 'assets/images/yoga.png',
+      'image': 'assets/images/lotus-pose_9535818.gif',
     },
     {
       'name': 'Đi bộ',
       'type': 'Cardio',
       'caloriesPerMinute': 6,
-      'image': 'assets/images/walking.png',
+      'image': 'assets/images/walk_18307475.gif',
     },
     {
       'name': 'Nhảy dây',
       'type': 'Cardio',
       'caloriesPerMinute': 13,
-      'image': 'assets/images/jumprope.png',
+      'image': 'assets/images/rope_15689917.gif',
     },
   ];
 
@@ -83,6 +84,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   @override
   void initState() {
     super.initState();
+    // Nếu bạn muốn 'Tất cả' là lựa chọn mặc định và hiển thị tất cả bài tập ban đầu
     selectedWorkoutType = 'Tất cả';
   }
 
@@ -100,7 +102,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              // controller: _searchController,
+              // controller: _searchController, // Cần thêm controller và logic tìm kiếm
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm bài tập...',
                 prefixIcon: Icon(Icons.search),
@@ -108,6 +110,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
+              // onChanged: (value) { // Thêm logic tìm kiếm tại đây },
             ),
           ),
 
@@ -162,15 +165,16 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
         onPressed: () {
           _showAddManualWorkoutDialog(context);
         },
-        backgroundColor: Color(0xFF30C9B7), // Thêm màu cho icon
+        backgroundColor: Color(0xFF30C9B7),
+        child: Icon(Icons.add, color: Colors.white), // Thêm màu cho icon
         tooltip: 'Thêm thủ công',
-        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
   Widget _buildFilterChip(String type) {
     // bool isSelected = type == selectedWorkoutType || (type == 'Tất cả' && selectedWorkoutType == 'Tất cả');
+    // Logic isSelected đơn giản hơn khi 'Tất cả' là một giá trị của selectedWorkoutType
     bool isSelected = type == selectedWorkoutType;
 
     return Padding(
@@ -200,7 +204,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
         if (workout['type'] == 'Sức mạnh') {
           _showStrengthWorkoutDialog(workout);
         } else {
-          // Cardio, Linh hoạt, Khác
+          // Cardio, Linh hoạt, Khác sẽ dùng chung dialog này hoặc tùy chỉnh thêm
           _showCardioWorkoutDialog(workout);
         }
       },
@@ -212,7 +216,8 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween, // Căn chỉnh nội dung tốt hơn
             children: [
               Expanded(
                 child: Center(
@@ -221,17 +226,21 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                               (workout['image'] as String).isNotEmpty
                           ? Image.asset(
                             workout['image'],
-                            fit: BoxFit.contain,
+                            fit:
+                                BoxFit
+                                    .contain, // Hoặc BoxFit.cover tùy theo ảnh
                             errorBuilder: (context, error, stackTrace) {
+                              // Fallback nếu ảnh không load được
                               return Icon(
                                 Icons.fitness_center,
-                                size: 50,
+                                size: 50, // Giảm kích thước icon một chút
                                 color: Color(0xFF30C9B7),
                               );
                             },
                           )
                           : Icon(
-                            Icons.fitness_center,
+                            Icons
+                                .fitness_center, // Icon mặc định nếu không có ảnh
                             size: 50,
                             color: Color(0xFF30C9B7),
                           ),
@@ -262,7 +271,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
 
   void _showCardioWorkoutDialog(Map<String, dynamic> workout) {
     int durationMinutes = 30;
-    String selectedIntensity = 'Trung bình';
+    String selectedIntensity = 'Trung bình'; // Mặc định
 
     showDialog(
       context: context,
@@ -347,17 +356,15 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _addWorkoutToLog(
-                        workout['name'],
-                        workout['type'],
-                        durationMinutes,
-                        estimatedCalories.toDouble(),
-                        selectedIntensity,
-                        null,
-                      );
-                    });
+                    _addWorkoutToLog(
+                      workout['name'],
+                      workout['type'],
+                      durationMinutes,
+                      estimatedCalories.toDouble(), // Calo đã tính toán
+                      selectedIntensity,
+                      null, // không có sets cho cardio
+                    );
+                    Navigator.pop(context); // Đóng dialog sau khi thêm
                   },
                   child: Text('Thêm'),
                 ),
@@ -387,6 +394,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
             return AlertDialog(
               title: Text(workout['name']),
               content: SingleChildScrollView(
+                // Quan trọng khi nội dung có thể dài
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -556,17 +564,15 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
+                    _addWorkoutToLog(
+                      workout['name'],
+                      workout['type'],
+                      durationMinutes,
+                      estimatedCalories.toDouble(),
+                      null, // Không có cường độ cụ thể cho strength, hoặc bạn có thể thêm nếu muốn
+                      sets, // Truyền thông tin sets
+                    );
                     Navigator.pop(context);
-                    setState(() {
-                      _addWorkoutToLog(
-                        workout['name'],
-                        workout['type'],
-                        durationMinutes,
-                        estimatedCalories.toDouble(),
-                        null,
-                        sets,
-                      );
-                    });
                   },
                   child: Text('Thêm'),
                 ),

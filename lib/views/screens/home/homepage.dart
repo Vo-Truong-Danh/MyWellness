@@ -495,7 +495,6 @@ class _HomePageV2State extends State<HomePage> {
 
   List<Widget> _buildNutritionLogs(HealthDataProvider provider) {
     final primaryColor = Color(0xFF30C9B7);
-    final backgroundColor = Color(0xFFF5F5F5);
 
     return provider.dailyLog!.nutritionLogs!.asMap().entries.map((entry) {
       final index = entry.key;

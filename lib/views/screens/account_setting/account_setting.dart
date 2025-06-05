@@ -2,14 +2,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_wellness/views/screens/authentication/LoginPage.dart';
-// Import các màn hình mới
+
 import 'package:my_wellness/views/screens/account_setting/edit_profile_screen.dart';
-import 'package:my_wellness/views/screens/health/health_history_screen.dart';
+import 'package:my_wellness/views/screens/authentication/LoginPage.dart';
 import 'package:my_wellness/views/screens/health/add_health_record_screen.dart';
+import 'package:my_wellness/views/screens/health/health_history_screen.dart';
 import 'package:my_wellness/views/screens/water/water_reminder_screen.dart';
 
 class AccountSetting extends StatefulWidget {
+  const AccountSetting({super.key});
+
   @override
   _Account_SetState createState() => _Account_SetState();
 }
@@ -369,13 +371,6 @@ class _Account_SetState extends State<AccountSetting> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(
-                                'assets/images/walk.gif',
-                                errorBuilder: (context, error, stackTrace) {
-                                  print('Error loading image: $error');
-                                  return Text('Image not found');
-                                },
-                              ),
                               Icon(
                                 Icons.email_outlined,
                                 color: Colors.white70,
