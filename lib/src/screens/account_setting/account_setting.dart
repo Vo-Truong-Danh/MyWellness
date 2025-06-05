@@ -289,7 +289,7 @@ class _Account_SetState extends State<AccountSetting> {
                           backgroundColor: Colors.white,
                           backgroundImage: user?.photoURL != null && user!.photoURL!.isNotEmpty
                               ? NetworkImage(user!.photoURL!) as ImageProvider
-                              : AssetImage('assets/images/brlogin.gif') as ImageProvider, // Đảm bảo đường dẫn đúng
+                              : AssetImage('assets/images/brlogin.gif') as ImageProvider,
                         ),
                       ),
                       Positioned(
@@ -343,6 +343,13 @@ class _Account_SetState extends State<AccountSetting> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Image.asset(
+                        'assets/images/walk.gif',
+                        errorBuilder: (context, error, stackTrace) {
+                          print('Error loading image: $error');
+                          return Text('Image not found');
+                        },
+                      ),
                       Icon(Icons.email_outlined, color: Colors.white70, size: 18),
                       SizedBox(width: 8),
                       Flexible( // Sử dụng Flexible để tránh tràn chữ

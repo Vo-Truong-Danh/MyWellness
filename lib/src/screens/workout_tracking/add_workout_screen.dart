@@ -24,8 +24,8 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       'name': 'Chạy bộ',
       'type': 'Cardio',
       'caloriesPerMinute': 10,
-      'image': 'assets/images/walk.gif' // Đảm bảo bạn có ảnh này trong assets
-    },
+      'image': 'assets/images/walk.gif'
+      },
     {
       'name': 'Đạp xe',
       'type': 'Cardio',
@@ -36,37 +36,37 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       'name': 'Bơi lội',
       'type': 'Cardio',
       'caloriesPerMinute': 12,
-      'image': 'assets/images/swimming.png'
+      'image': 'assets/images/swimme.gif'
     },
     {
       'name': 'Hít đất',
       'type': 'Sức mạnh',
       'caloriesPerMinute': 7,
-      'image': 'assets/images/pushup.png'
+      'image': 'assets/images/excercise_18512870.gif'
     },
     {
       'name': 'Gánh tạ',
       'type': 'Sức mạnh',
       'caloriesPerMinute': 9,
-      'image': 'assets/images/weightlifting.png'
+      'image': 'assets/images/weightlifting.gif'
     },
     {
       'name': 'Yoga',
       'type': 'Linh hoạt',
       'caloriesPerMinute': 5,
-      'image': 'assets/images/yoga.png'
+      'image': 'assets/images/lotus-pose_9535818.gif'
     },
     {
       'name': 'Đi bộ',
       'type': 'Cardio',
       'caloriesPerMinute': 6,
-      'image': 'assets/images/walking.png'
+      'image': 'assets/images/walk_18307475.gif'
     },
     {
       'name': 'Nhảy dây',
       'type': 'Cardio',
       'caloriesPerMinute': 13,
-      'image': 'assets/images/jumprope.png'
+      'image': 'assets/images/rope_15689917.gif'
     },
   ];
 

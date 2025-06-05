@@ -156,21 +156,26 @@ class _HomePageV2State extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       HealthCardRow(),
-                      _buildSectionHeader(
-                        'Hoạt động thể thao',
-                        Icons.fitness_center,
+                      Center(
+                        child: _buildSectionHeader(
+                          'Nhật ký hôm nay',
+                          Icons.book_outlined,
+                        ),
                       ),
-                      SizedBox(height: 10), // Giảm từ 10 xuống 8
+                      SizedBox(height: 10),
                       _buildSportsCard(),
-                      SizedBox(height: 16), // Giảm từ 24 xuống 16
-                      _buildSectionHeader('Nhật ký hôm nay', Icons.note_alt),
-                      SizedBox(height: 12), // Giảm từ 10 xuống 8
+                      SizedBox(height: 16),
+                      _buildSectionHeader(
+                        'Hoạt động thể chất',
+                        Icons.directions_run,
+                      ),
+                      SizedBox(height: 12),
                       _buildDailyLogSection(),
-                      SizedBox(height: 16), // Giảm từ 24 xuống 16
+                      SizedBox(height: 16),
                       _buildSectionHeader('Thói quen', Icons.repeat),
-                      SizedBox(height: 10), // Giảm từ 10 xuống 8
+                      SizedBox(height: 10),
                       _buildHabitsSection(),
-                      SizedBox(height: 30), // Giảm từ 50 xuống 30
+                      SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -344,7 +349,7 @@ class _HomePageV2State extends State<HomePage> {
                 ],
               ),
               child: Dismissible(
-                key: Key('workout-${w.id ?? index}'),
+                key: ValueKey('workout-${w.id ?? "${w.name}-$index"}'),
                 background: Container(
                   alignment: Alignment.centerRight,
                   padding: EdgeInsets.only(right: 20),
@@ -382,7 +387,9 @@ class _HomePageV2State extends State<HomePage> {
                 },
                 onDismissed: (direction) {
                   // Delete workout entry
-                  provider.deleteWorkout(w);
+                  setState(() {
+                    provider.deleteWorkout(w);
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Đã xóa hoạt động thể thao'),
@@ -509,7 +516,7 @@ class _HomePageV2State extends State<HomePage> {
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 6, horizontal: 2),
               decoration: BoxDecoration(
-                color: Colors.white, 
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.grey.shade100),
                 boxShadow: [
@@ -521,7 +528,7 @@ class _HomePageV2State extends State<HomePage> {
                 ],
               ),
               child: Dismissible(
-                key: Key('nutrition-${f.id ?? index}'),
+                key: ValueKey('nutrition-${f.id ?? "${f.name}-$index"}'),
                 background: Container(
                   alignment: Alignment.centerRight,
                   padding: EdgeInsets.only(right: 20),
@@ -559,7 +566,9 @@ class _HomePageV2State extends State<HomePage> {
                 },
                 onDismissed: (direction) {
                   // Delete nutrition entry
-                  provider.deleteNutrition(f);
+                  setState(() {
+                    provider.deleteNutrition(f);
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Đã xóa bữa ăn'),
