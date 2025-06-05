@@ -1302,7 +1302,7 @@ class _HomePageV2State extends State<HomePage> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('H���y'),
+                    child: Text('Hủy'),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
