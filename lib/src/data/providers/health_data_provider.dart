@@ -159,7 +159,7 @@ class HealthDataProvider extends ChangeNotifier {
     return success;
   }
 
-  // Cập nhật lư��ng nước đã uống
+  // Cập nhật lượng nước đã uống
   Future<bool> updateWaterIntake(double amount, DateTime date) async {
     final success = await _service.updateWaterIntake(amount, date);
     if (success) {
@@ -215,7 +215,7 @@ class HealthDataProvider extends ChangeNotifier {
     return success;
   }
 
-  // Tính toán tổng l��ợng calo đã tiêu thụ trong ngày
+  // Tính toán tổng lượng calo đã tiêu thụ trong ngày
   double getTotalCalories() {
     if (_dailyLog?.loggedCalories == null) return 0.0;
     return _dailyLog!.loggedCalories!;
@@ -264,5 +264,18 @@ class HealthDataProvider extends ChangeNotifier {
                              (stepsProgress * stepsWeight);
 
     return overallProgress;
+  }
+
+  // Phương thức để làm mới dữ liệu
+  Future<void> refreshData() async {
+    // Tải lại dữ liệu người dùng
+    await loadUserData();
+
+    // Tải lại dữ liệu nhật ký cho ngày hiện tại
+    if (_dailyLog != null) {
+      await loadDailyLog(_dailyLog!.date);
+    } else {
+      await loadDailyLog(DateTime.now());
+    }
   }
 }

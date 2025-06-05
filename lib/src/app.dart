@@ -28,6 +28,7 @@ class MainApp extends State<MyApp> {
     Navigator.pushNamed(context, '/account_settings');
   }
 
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [

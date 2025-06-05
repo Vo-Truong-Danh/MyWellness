@@ -3,10 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_wellness/src/screens/authentication/LoginPage.dart';
-// Import các màn hình cần thiết khác (ví dụ: EditProfileScreen, PrivacyPolicyScreen)
-// import 'package:my_wellness/src/screens/settings/EditProfileScreen.dart';
-// import 'package:my_wellness/src/screens/settings/PrivacyPolicyScreen.dart';
-
+// Import các màn hình mới
+import 'package:my_wellness/src/screens/account_setting/edit_profile_screen.dart';
+import 'package:my_wellness/src/screens/health/health_history_screen.dart';
+import 'package:my_wellness/src/screens/health/add_health_record_screen.dart';
+import 'package:my_wellness/src/screens/water/water_reminder_screen.dart';
 
 class AccountSetting extends StatefulWidget {
   @override
@@ -390,18 +391,73 @@ class _Account_SetState extends State<AccountSetting> {
                       title: 'Hồ sơ của tôi',
                       subtitle: 'Chỉnh sửa thông tin cá nhân',
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Tính năng chỉnh sửa hồ sơ đang phát triển')),
-                        );
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => EditProfileScreen(userData: _userData),
-                        //   )
-                        // ).then((_) => _loadUserData()); // Load lại dữ liệu khi quay về
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfileScreen(userData: _userData),
+                          )
+                        ).then((result) {
+                          // Chỉ làm mới dữ liệu khi có sự thay đổi (result == true)
+                          if (result == true) {
+                            _loadUserData();
+                            // Hiện thông báo đã cập nhật dữ liệu
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Đã cập nhật thông tin cá nhân')),
+                            );
+                          }
+                        });
                       },
                       showBadge: _userData['name'] == null || _userData['name'].isEmpty, // Hiện badge nếu thông tin chưa đầy đủ
                     ),
+
+                    // Thêm section theo dõi sức khỏe
+                    _buildSectionHeader('Theo dõi sức khỏe'),
+
+                    _buildInfoCard(
+                      icon: Icons.favorite_outline,
+                      title: 'Lịch sử sức khỏe',
+                      subtitle: 'Xem lại lịch sử chỉ số sức khỏe của bạn',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HealthHistoryScreen(),
+                          )
+                        );
+                      },
+                      showBadge: false,
+                    ),
+
+                    _buildInfoCard(
+                      icon: Icons.add_chart,
+                      title: 'Thêm dữ liệu sức khỏe',
+                      subtitle: 'Ghi lại các chỉ số sức khỏe hôm nay',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddHealthRecordScreen(),
+                          )
+                        );
+                      },
+                      showBadge: false,
+                    ),
+
+                    _buildInfoCard(
+                      icon: Icons.water_drop_outlined,
+                      title: 'Nhắc nhở uống nước',
+                      subtitle: 'Theo dõi và nhắc nhở uống nước hàng ngày',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WaterReminderScreen(),
+                          )
+                        );
+                      },
+                      showBadge: false,
+                    ),
+
                     SizedBox(height: 10), // Khoảng cách giữa các card
 
                     _buildInfoItem(
