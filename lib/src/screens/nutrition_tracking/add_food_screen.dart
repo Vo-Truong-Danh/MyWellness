@@ -17,9 +17,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final List<Map<String, dynamic>> commonFoods = [
     {
       'name': 'Cơm trắng',
-      'calories': 130, // Đã là int, sẽ được chuyển đổi sang double khi sử dụng
+      'calories': 130,
       'portion': '1 chén',
-      'image': 'assets/images/rice.png',
+      'image': 'assets/images/com.jpg',
     },
     {
       'name': 'Bánh mì',
