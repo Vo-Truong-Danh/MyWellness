@@ -18,9 +18,7 @@ class AddOptionsBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -38,7 +36,10 @@ class AddOptionsBottomSheet extends StatelessWidget {
 
           // Tiêu đề
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Text(
@@ -126,13 +127,11 @@ class AddOptionsBottomSheet extends StatelessWidget {
               HapticFeedback.lightImpact();
 
               Navigator.of(context).pop();
-              showModalBottomSheet(
+              showDialog(
                 context: context,
-                isScrollControlled: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                builder: (context) => AddHabitBottomSheet(),
+                builder: (context) {
+                  return AddHabitDialog();
+                },
               );
             },
           ),
@@ -150,32 +149,25 @@ class AddOptionsBottomSheet extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 24.0,
+        vertical: 8.0,
+      ),
       leading: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: iconColor.withOpacity(0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          size: 26,
-          color: iconColor,
-        ),
+        child: Icon(icon, size: 26, color: iconColor),
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
+        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
       ),
       onTap: onTap,
     );
@@ -194,7 +186,12 @@ class AddOptionsBottomSheet extends StatelessWidget {
 
   // Các hàm hiển thị dialog được cải tiến với giao diện hiện đại
   void _showWeightInputDialog(BuildContext context) {
-    double weight = Provider.of<HealthDataProvider>(context, listen: false).userData?.weight ?? 60.0;
+    double weight =
+        Provider.of<HealthDataProvider>(
+          context,
+          listen: false,
+        ).userData?.weight ??
+        60.0;
     bool isSaving = false;
 
     showDialog(
@@ -203,7 +200,9 @@ class AddOptionsBottomSheet extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật cân nặng',
                 style: TextStyle(
@@ -264,58 +263,74 @@ class AddOptionsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving
-                      ? null
-                      : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.updateWeight(
-                      weight,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider.updateWeight(
+                              weight,
+                              dateProvider.selectedDate,
+                            );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật cân nặng thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật cân nặng thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -337,7 +352,9 @@ class AddOptionsBottomSheet extends StatelessWidget {
             Color heartRateColor = _getHeartRateColor(heartRate);
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật nhịp tim',
                 style: TextStyle(
@@ -398,56 +415,75 @@ class AddOptionsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving ? null : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.addHeartRateReading(
-                      heartRate,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider
+                                .addHeartRateReading(
+                                  heartRate,
+                                  dateProvider.selectedDate,
+                                );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật nhịp tim thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật nhịp tim thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -470,13 +506,12 @@ class AddOptionsBottomSheet extends StatelessWidget {
             Color bpColor = _getBloodPressureColor(systolic, diastolic);
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật huyết áp',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: bpColor,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, color: bpColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -496,7 +531,10 @@ class AddOptionsBottomSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Text('Tâm thu (Systolic)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Tâm thu (Systolic)',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Slider(
                     value: systolic.toDouble(),
                     min: 70,
@@ -518,7 +556,10 @@ class AddOptionsBottomSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Text('Tâm trương (Diastolic)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Tâm trương (Diastolic)',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Slider(
                     value: diastolic.toDouble(),
                     min: 40,
@@ -554,57 +595,76 @@ class AddOptionsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving ? null : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.addBloodPressureReading(
-                      systolic,
-                      diastolic,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider
+                                .addBloodPressureReading(
+                                  systolic,
+                                  diastolic,
+                                  dateProvider.selectedDate,
+                                );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật huyết áp thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật huyết áp thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -643,9 +703,7 @@ class HealthMetricsBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -663,7 +721,10 @@ class HealthMetricsBottomSheet extends StatelessWidget {
 
           // Tiêu đề
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Text(
@@ -731,17 +792,19 @@ class HealthMetricsBottomSheet extends StatelessWidget {
       leading: Icon(icon, color: iconColor, size: 28),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       onTap: onTap,
     );
   }
 
   void _showWeightInputDialog(BuildContext context) {
-    double weight = Provider.of<HealthDataProvider>(context, listen: false).userData?.weight ?? 60.0;
+    double weight =
+        Provider.of<HealthDataProvider>(
+          context,
+          listen: false,
+        ).userData?.weight ??
+        60.0;
     bool isSaving = false;
 
     showDialog(
@@ -750,7 +813,9 @@ class HealthMetricsBottomSheet extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật cân nặng',
                 style: TextStyle(
@@ -811,58 +876,74 @@ class HealthMetricsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving
-                      ? null
-                      : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.updateWeight(
-                      weight,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider.updateWeight(
+                              weight,
+                              dateProvider.selectedDate,
+                            );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật cân nặng thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật cân nặng thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -884,7 +965,9 @@ class HealthMetricsBottomSheet extends StatelessWidget {
             Color heartRateColor = _getHeartRateColor(heartRate);
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật nhịp tim',
                 style: TextStyle(
@@ -945,56 +1028,75 @@ class HealthMetricsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving ? null : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.addHeartRateReading(
-                      heartRate,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider
+                                .addHeartRateReading(
+                                  heartRate,
+                                  dateProvider.selectedDate,
+                                );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật nhịp tim thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật nhịp tim thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -1017,13 +1119,12 @@ class HealthMetricsBottomSheet extends StatelessWidget {
             Color bpColor = _getBloodPressureColor(systolic, diastolic);
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Cập nhật huyết áp',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: bpColor,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, color: bpColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1043,7 +1144,10 @@ class HealthMetricsBottomSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Text('Tâm thu (Systolic)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Tâm thu (Systolic)',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Slider(
                     value: systolic.toDouble(),
                     min: 70,
@@ -1065,7 +1169,10 @@ class HealthMetricsBottomSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Text('Tâm trương (Diastolic)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Tâm trương (Diastolic)',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Slider(
                     value: diastolic.toDouble(),
                     min: 40,
@@ -1101,57 +1208,76 @@ class HealthMetricsBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: isSaving ? null : () async {
-                    setState(() {
-                      isSaving = true;
-                    });
+                  onPressed:
+                      isSaving
+                          ? null
+                          : () async {
+                            setState(() {
+                              isSaving = true;
+                            });
 
-                    final healthProvider = Provider.of<HealthDataProvider>(context, listen: false);
-                    final dateProvider = Provider.of<SelectedDateProvider>(context, listen: false);
+                            final healthProvider =
+                                Provider.of<HealthDataProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                            final dateProvider =
+                                Provider.of<SelectedDateProvider>(
+                                  context,
+                                  listen: false,
+                                );
 
-                    bool success = await healthProvider.addBloodPressureReading(
-                      systolic,
-                      diastolic,
-                      dateProvider.selectedDate,
-                    );
+                            bool success = await healthProvider
+                                .addBloodPressureReading(
+                                  systolic,
+                                  diastolic,
+                                  dateProvider.selectedDate,
+                                );
 
-                    if (success) {
-                      // Refresh homepage data
-                      HomePage.refreshData();
+                            if (success) {
+                              // Refresh homepage data
+                              HomePage.refreshData();
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Cập nhật huyết áp thành công'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (context.mounted) {
-                        setState(() {
-                          isSaving = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: isSaving
-                      ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
-                  )
-                      : Text('Lưu'),
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Cập nhật huyết áp thành công',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                setState(() {
+                                  isSaving = false;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Đã xảy ra lỗi khi lưu dữ liệu. Vui lòng thử lại.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                  child:
+                      isSaving
+                          ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text('Lưu'),
                 ),
               ],
             );
@@ -1179,4 +1305,3 @@ class HealthMetricsBottomSheet extends StatelessWidget {
     }
   }
 }
-

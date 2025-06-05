@@ -174,7 +174,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                 icon: Icon(Icons.close, size: 30.0),
               ),
               title: Text(
-                "Create",
+                "Tạo",
                 style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
@@ -192,16 +192,16 @@ class _CreateExerciseState extends State<CreateExercise> {
                 child: Column(
                   spacing: 20.0,
                   children: [
-                    TextFormFieldMyWidget(initialValue: "Exercise"),
+                    TextFormFieldMyWidget(initialValue: "Tập thể dục"),
                     TextFormFieldMyWidget(
-                      initialValue: "Add Notes",
+                      initialValue: "Ghi chú",
                       textAlign: TextAlign.center,
                     ),
                     // ==============================================================================
                     SizedBox(
                       width: double.maxFinite,
                       child: Text(
-                        "Goal",
+                        "Đích",
                         style: TextStyle(
                           fontSize: 20.0,
                           color: const Color.fromARGB(255, 142, 142, 142),
@@ -241,7 +241,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                                           : Colors.white,
                                 ),
                                 child: Text(
-                                  "Task",
+                                  "Công việc",
                                   style: TextStyle(fontSize: 20.0),
                                 ),
                               ),
@@ -270,7 +270,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                                           : Colors.white,
                                 ),
                                 child: Text(
-                                  "Count",
+                                  "Số đếm",
                                   style: TextStyle(fontSize: 20.0),
                                 ),
                               ),
@@ -297,13 +297,13 @@ class _CreateExerciseState extends State<CreateExercise> {
                                   onPressed: () {
                                     _showCountNumberPicker(
                                       context,
-                                      "Set Times",
+                                      "Số lần",
                                       10,
-                                      "Times",
+                                      "Lần",
                                     );
                                   },
                                   child: Text(
-                                    "$_selectedNumberOfGlasses time",
+                                    "$_selectedNumberOfGlasses lần",
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       color: Colors.white,
@@ -324,15 +324,15 @@ class _CreateExerciseState extends State<CreateExercise> {
                                   onPressed: () {
                                     _showCountNumberPicker(
                                       context,
-                                      "Set Times",
+                                      "Số lần",
                                       10,
-                                      "Times",
+                                      "Lần",
                                     );
                                   },
                                   child: Text(
-                                    "Change",
+                                    "Thay đổi",
                                     style: TextStyle(
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                       color: Colors.black,
                                     ),
                                   ),
@@ -345,7 +345,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                     SizedBox(
                       width: double.maxFinite,
                       child: Text(
-                        "Repeat",
+                        "Lặp lại",
                         style: TextStyle(
                           fontSize: 20.0,
                           color: const Color.fromARGB(255, 142, 142, 142),
@@ -376,10 +376,10 @@ class _CreateExerciseState extends State<CreateExercise> {
                             SizedBox(width: 20.0),
                             Text(
                               value == 0
-                                  ? "None"
+                                  ? "Không lặp lại"
                                   : value == 1
-                                  ? "Select Days"
-                                  : "Every few Days",
+                                  ? "Chọn ngày"
+                                  : "Mỗi một vài ngày",
                               style: TextStyle(
                                 fontSize: 20.0,
                                 color: Colors.black,
@@ -453,13 +453,13 @@ class _CreateExerciseState extends State<CreateExercise> {
                                   onPressed: () {
                                     _showCountNumberPicker(
                                       context,
-                                      "Set Interval",
+                                      "Khoảng thời gian",
                                       30,
-                                      "Days",
+                                      "Ngày",
                                     );
                                   },
                                   child: Text(
-                                    "Every $_selectedNumberOfGlasses days",
+                                    "Mỗi $_selectedNumberOfGlasses ngày",
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       color: Colors.white,
@@ -480,15 +480,15 @@ class _CreateExerciseState extends State<CreateExercise> {
                                   onPressed: () {
                                     _showCountNumberPicker(
                                       context,
-                                      "Set Interval",
+                                      "Khoảng thời gian",
                                       30,
-                                      "Days",
+                                      "Ngày",
                                     );
                                   },
                                   child: Text(
-                                    "Change",
+                                    "Thay đổi",
                                     style: TextStyle(
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                       color: Colors.black,
                                     ),
                                   ),
@@ -508,7 +508,7 @@ class _CreateExerciseState extends State<CreateExercise> {
                       child: TextButton(
                         onPressed: () {},
                         child: Text(
-                          "Save",
+                          "Lưu",
                           style: TextStyle(
                             fontSize: 25.0,
                             color: Colors.black,

@@ -96,7 +96,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     Text(
-                      "Set Count",
+                      "Số lượng",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -134,10 +134,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                   ),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  "glasses",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
+                Text("Ly", style: TextStyle(fontSize: 16, color: Colors.grey)),
               ],
             ),
           ),
@@ -157,7 +154,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
           icon: Icon(Icons.close, size: 30.0),
         ),
         title: Text(
-          "Create",
+          "Tạo",
           style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -175,16 +172,16 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
           child: Column(
             spacing: 20.0,
             children: [
-              TextFormFieldMyWidget(initialValue: "Drink Water"),
+              TextFormFieldMyWidget(initialValue: "Uống nước"),
               TextFormFieldMyWidget(
-                initialValue: "Add Notes",
+                initialValue: "Ghi chú",
                 textAlign: TextAlign.center,
               ),
               // ==============================================================================
               SizedBox(
                 width: double.maxFinite,
                 child: Text(
-                  "Goal",
+                  "Đích",
                   style: TextStyle(
                     fontSize: 20.0,
                     color: const Color.fromARGB(255, 142, 142, 142),
@@ -223,7 +220,10 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                                     ? Color.fromARGB(255, 62, 176, 230)
                                     : Colors.white,
                           ),
-                          child: Text("Task", style: TextStyle(fontSize: 20.0)),
+                          child: Text(
+                            "Công việc",
+                            style: TextStyle(fontSize: 20.0),
+                          ),
                         ),
                       ),
                     ),
@@ -250,7 +250,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                                     : Colors.white,
                           ),
                           child: Text(
-                            "Count",
+                            "Số đếm",
                             style: TextStyle(fontSize: 20.0),
                           ),
                         ),
@@ -278,7 +278,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                               _showCountNumberPicker(context);
                             },
                             child: Text(
-                              "$_selectedNumberOfGlasses glasses",
+                              "$_selectedNumberOfGlasses ly",
                               style: TextStyle(
                                 fontSize: 20.0,
                                 color: Colors.white,
@@ -300,9 +300,9 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                               _showCountNumberPicker(context);
                             },
                             child: Text(
-                              "Change",
+                              "Thay đổi",
                               style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 18.0,
                                 color: Colors.black,
                               ),
                             ),
@@ -322,7 +322,7 @@ class _CreateHabitDrinkWaterState extends State<CreateHabitDrinkWater> {
                 child: TextButton(
                   onPressed: () {},
                   child: Text(
-                    "Save",
+                    "Lưu",
                     style: TextStyle(
                       fontSize: 25.0,
                       color: Colors.black,

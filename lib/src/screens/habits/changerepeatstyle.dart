@@ -56,7 +56,7 @@ class _ChangeRepeatStyleBottomSheet
                     ),
                     Expanded(
                       child: Text(
-                        "Add",
+                        "Thêm",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 25.0,
@@ -84,7 +84,7 @@ class _ChangeRepeatStyleBottomSheet
                   child: SizedBox(
                     width: double.infinity,
                     child: Text(
-                      "None",
+                      "Không lặp lại",
                       style: TextStyle(fontSize: 20.0, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
@@ -107,7 +107,7 @@ class _ChangeRepeatStyleBottomSheet
                   child: SizedBox(
                     width: double.infinity,
                     child: Text(
-                      "Select Days",
+                      "Chọn ngày",
                       style: TextStyle(fontSize: 20.0, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
@@ -130,7 +130,7 @@ class _ChangeRepeatStyleBottomSheet
                   child: SizedBox(
                     width: double.infinity,
                     child: Text(
-                      "Every few Days",
+                      "Mỗi một vài ngày",
                       style: TextStyle(fontSize: 20.0, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
