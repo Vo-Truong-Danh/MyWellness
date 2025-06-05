@@ -289,7 +289,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Th���i gian (phút): $durationMinutes phút'),
+                  Text('Thời gian (phút): $durationMinutes phút'),
                   Slider(
                     value: durationMinutes.toDouble(),
                     min: 5,

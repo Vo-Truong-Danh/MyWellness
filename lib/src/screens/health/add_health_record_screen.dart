@@ -352,7 +352,7 @@ class _AddHealthRecordScreenState extends State<AddHealthRecordScreen> {
                         Expanded(
                           child: _buildNumberInput(
                             controller: _diastolicController,
-                            label: 'Huyết ��p tâm trương',
+                            label: 'Huyết áp tâm trương',
                             hint: 'Tâm trương',
                             unit: 'mmHg',
                           ),
