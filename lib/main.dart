@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_wellness/src/app.dart';
 import 'package:my_wellness/src/screens/authentication/auth.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +11,9 @@ import 'package:my_wellness/src/data/providers/health_data_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Khởi tạo định dạng ngày tháng cho locale tiếng Việt
+  await initializeDateFormatting('vi_VN', null);
 
   runApp(
     MultiProvider(

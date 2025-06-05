@@ -41,7 +41,7 @@ class HealthCardRow extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 10),
               ],
             ),
           ),
