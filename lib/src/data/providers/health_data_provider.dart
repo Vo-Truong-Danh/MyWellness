@@ -300,9 +300,9 @@ class HealthDataProvider extends ChangeNotifier {
         updatedLogs.removeAt(index);
 
         // Tính lại tổng calories nếu cần
-        double newTotalCalories = _dailyLog!.loggedCalories ?? 0;
+        double newTotalCalories = (_dailyLog!.loggedCalories ?? 0).toDouble();
         if (nutrition.calories > 0) {
-          newTotalCalories -= nutrition.calories;
+          newTotalCalories -= nutrition.calories.toDouble();
           if (newTotalCalories < 0) newTotalCalories = 0;
         }
 

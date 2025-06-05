@@ -156,7 +156,10 @@ class _HomePageV2State extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       HealthCardRow(),
-                      _buildSectionHeader('Hoạt động thể thao', Icons.fitness_center),
+                      _buildSectionHeader(
+                        'Hoạt động thể thao',
+                        Icons.fitness_center,
+                      ),
                       SizedBox(height: 10), // Giảm từ 10 xuống 8
                       _buildSportsCard(),
                       SizedBox(height: 16), // Giảm từ 24 xuống 16
@@ -281,25 +284,6 @@ class _HomePageV2State extends State<HomePage> {
 
         // Hiển thị tiêu đề phần nếu có dữ liệu tương ứng
         if (log.workoutLogs != null && log.workoutLogs!.isNotEmpty) {
-          items.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10.0, top: 4.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.fitness_center,
-                    color: Colors.orange.shade700,
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Hoạt động thể thao',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-          );
           items.addAll(_buildWorkoutLogs(provider));
           items.add(SizedBox(height: 16));
         }
@@ -324,17 +308,6 @@ class _HomePageV2State extends State<HomePage> {
         }
 
         return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 10,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: items,
@@ -385,20 +358,26 @@ class _HomePageV2State extends State<HomePage> {
                 confirmDismiss: (direction) async {
                   return await showDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Xóa hoạt động thể thao'),
-                      content: Text('Bạn có chắc chắn muốn xóa hoạt động này?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text('Hủy'),
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('Xóa hoạt động thể thao'),
+                          content: Text(
+                            'Bạn có chắc chắn muốn xóa hoạt động này?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('Hủy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text(
+                                'Xóa',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: Text('Xóa', style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    ),
                   );
                 },
                 onDismissed: (direction) {
@@ -485,7 +464,10 @@ class _HomePageV2State extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -527,7 +509,7 @@ class _HomePageV2State extends State<HomePage> {
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 6, horizontal: 2),
               decoration: BoxDecoration(
-                color: backgroundColor.withOpacity(0.7), // Updated to match main background better
+                color: Colors.white, 
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.grey.shade100),
                 boxShadow: [
@@ -553,20 +535,26 @@ class _HomePageV2State extends State<HomePage> {
                 confirmDismiss: (direction) async {
                   return await showDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Xóa bữa ăn'),
-                      content: Text('Bạn có chắc chắn muốn xóa bữa ăn này?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text('Hủy'),
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('Xóa bữa ăn'),
+                          content: Text(
+                            'Bạn có chắc chắn muốn xóa bữa ăn này?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('Hủy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text(
+                                'Xóa',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: Text('Xóa', style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    ),
                   );
                 },
                 onDismissed: (direction) {
@@ -1074,7 +1062,12 @@ class _HomePageV2State extends State<HomePage> {
                 children: [
                   _statItem(Icons.timer, '$totalMin', 'phút', Colors.blue),
                   _statItem(Icons.whatshot, '$totalCal', 'kcal', Colors.orange),
-                  _statItem(Icons.fitness_center, '${workouts.length}', 'hoạt động', primaryColor),
+                  _statItem(
+                    Icons.fitness_center,
+                    '${workouts.length}',
+                    'hoạt động',
+                    primaryColor,
+                  ),
                 ],
               ),
               SizedBox(height: 16),
@@ -1302,20 +1295,21 @@ class _HomePageV2State extends State<HomePage> {
       confirmDismiss: (direction) async {
         return await showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Xóa thói quen'),
-            content: Text('Bạn có chắc chắn muốn xóa thói quen này?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('H���y'),
+          builder:
+              (context) => AlertDialog(
+                title: Text('Xóa thói quen'),
+                content: Text('Bạn có chắc chắn muốn xóa thói quen này?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text('H���y'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text('Xóa', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Xóa', style: TextStyle(color: Colors.red)),
-              ),
-            ],
-          ),
         );
       },
       onDismissed: (direction) {
@@ -1383,12 +1377,18 @@ class _HomePageV2State extends State<HomePage> {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                     // Thanh tiến trình nếu có
                     if (progress != null) ...[
@@ -1437,7 +1437,9 @@ class _HomePageV2State extends State<HomePage> {
                 Container(
                   padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: (completedColor ?? Color(0xFF30C9B7)).withOpacity(0.1),
+                    color: (completedColor ?? Color(0xFF30C9B7)).withOpacity(
+                      0.1,
+                    ),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

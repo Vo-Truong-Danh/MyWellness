@@ -24,13 +24,13 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       'name': 'Chạy bộ',
       'type': 'Cardio',
       'caloriesPerMinute': 10,
-      'image': 'assets/images/running.png' // Đảm bảo bạn có ảnh này trong assets
+      'image': 'assets/images/walk.gif' // Đảm bảo bạn có ảnh này trong assets
     },
     {
       'name': 'Đạp xe',
       'type': 'Cardio',
       'caloriesPerMinute': 8,
-      'image': 'assets/images/cycling.png'
+      'image': 'assets/images/cycling.gif'
     },
     {
       'name': 'Bơi lội',
@@ -207,6 +207,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 4,
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
