@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:my_wellness/controllers/providers/health_data_provider.dart';
 import 'package:my_wellness/controllers/providers/selected_date_provider.dart';
 import 'package:my_wellness/views/screens/nutrition_tracking/add_food_screen.dart';
-import 'package:my_wellness/views/screens/workout_tracking/add_workout_screen.dart';
 
 class HealthCardRow extends StatelessWidget {
-  const HealthCardRow({Key? key}) : super(key: key);
+  const HealthCardRow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +62,7 @@ class HealthCardRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Color(0xFF30C9B7),
+        color: Color.fromARGB(255, 64, 218, 245),
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(

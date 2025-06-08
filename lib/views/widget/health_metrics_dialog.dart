@@ -6,8 +6,7 @@ import 'package:my_wellness/controllers/providers/selected_date_provider.dart';
 class HealthMetricsDialog extends StatefulWidget {
   final bool isHeartRate; // true nếu là nhịp tim, false nếu là huyết áp
 
-  const HealthMetricsDialog({Key? key, required this.isHeartRate})
-    : super(key: key);
+  const HealthMetricsDialog({super.key, required this.isHeartRate});
 
   @override
   _HealthMetricsDialogState createState() => _HealthMetricsDialogState();

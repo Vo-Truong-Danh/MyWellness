@@ -16,11 +16,11 @@ class HealthMetricInputDialog extends StatefulWidget {
   final Future<bool> Function(Map<String, dynamic> values) onSave;
 
   const HealthMetricInputDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.inputFields,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   /// Hiển thị hộp thoại và trả về kết quả (true nếu thêm thành công)
   static Future<bool?> show(

@@ -181,7 +181,7 @@ class _HomePageV2State extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddOptionsDialog,
-        backgroundColor: primaryColor,
+        backgroundColor: Color.fromARGB(255, 64, 245, 215),
         icon: Icon(Icons.add),
         label: Text('Thêm'),
         elevation: 4,

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  EditProfileScreen({required this.userData});
+  const EditProfileScreen({super.key, required this.userData});
 
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -98,7 +97,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           'phone': _phoneController.text,
           'height': double.tryParse(_heightController.text) ?? 0.0,
           'weight': double.tryParse(_weightController.text) ?? 0.0,
-          'lastUpdated': FieldValue.serverTimestamp(), // Thêm thời gian cập nhật
+          'lastUpdated':
+              FieldValue.serverTimestamp(), // Thêm thời gian cập nhật
         };
 
         if (_birthday != null) {
@@ -130,7 +130,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       print('Error updating profile: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cập nhật thông tin thất bại. Vui lòng thử lại!')),
+        SnackBar(
+          content: Text('Cập nhật thông tin thất bại. Vui lòng thử lại!'),
+        ),
       );
     } finally {
       setState(() {
@@ -146,182 +148,187 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         title: Text('Chỉnh sửa thông tin cá nhân'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Họ và tên
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Họ và tên',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập họ và tên';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16.0),
-
-                    // Email (không thể sửa)
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: Icon(Icons.email),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                      ),
-                      readOnly: true, // Email không thể sửa
-                    ),
-                    SizedBox(height: 16.0),
-
-                    // Số điện thoại
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: InputDecoration(
-                        labelText: 'Số điện thoại',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: Icon(Icons.phone),
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    SizedBox(height: 16.0),
-
-                    // Ngày sinh
-                    GestureDetector(
-                      onTap: () => _selectDate(context),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Ngày sinh',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            prefixIcon: Icon(Icons.calendar_today),
-                            suffixIcon: Icon(Icons.arrow_drop_down),
-                          ),
-                          controller: TextEditingController(
-                            text: _birthday != null
-                                ? DateFormat('dd/MM/yyyy').format(_birthday!)
-                                : 'Chưa chọn',
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-
-                    // Giới tính
-                    FormField<String>(
-                      initialValue: _gender,
-                      builder: (FormFieldState<String> state) {
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: 'Giới tính',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            prefixIcon: Icon(Icons.people),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _gender,
-                              isDense: true,
-                              isExpanded: true,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _gender = newValue;
-                                  state.didChange(newValue);
-                                });
-                              },
-                              items: ['Nam', 'Nữ', 'Khác'].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 16.0),
-
-                    // Chiều cao và cân nặng
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _heightController,
-                            decoration: InputDecoration(
-                              labelText: 'Chiều cao (cm)',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              prefixIcon: Icon(Icons.height),
-                              suffixText: 'cm',
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        SizedBox(width: 16.0),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _weightController,
-                            decoration: InputDecoration(
-                              labelText: 'Cân nặng (kg)',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              prefixIcon: Icon(Icons.line_weight),
-                              suffixText: 'kg',
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 24.0),
-
-                    // Nút lưu thông tin
-                    Container(
-                      width: double.infinity,
-                      height: 50.0,
-                      child: ElevatedButton(
-                        onPressed: _saveProfile,
-                        child: Text(
-                          'Lưu thông tin',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
+      body:
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Họ và tên
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Họ và tên',
+                          border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập họ và tên';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16.0),
+
+                      // Email (không thể sửa)
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: Icon(Icons.email),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                        ),
+                        readOnly: true, // Email không thể sửa
+                      ),
+                      SizedBox(height: 16.0),
+
+                      // Số điện thoại
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          labelText: 'Số điện thoại',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: Icon(Icons.phone),
+                        ),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      SizedBox(height: 16.0),
+
+                      // Ngày sinh
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Ngày sinh',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(Icons.calendar_today),
+                              suffixIcon: Icon(Icons.arrow_drop_down),
+                            ),
+                            controller: TextEditingController(
+                              text:
+                                  _birthday != null
+                                      ? DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(_birthday!)
+                                      : 'Chưa chọn',
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.0),
+
+                      // Giới tính
+                      FormField<String>(
+                        initialValue: _gender,
+                        builder: (FormFieldState<String> state) {
+                          return InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Giới tính',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(Icons.people),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _gender,
+                                isDense: true,
+                                isExpanded: true,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _gender = newValue;
+                                    state.didChange(newValue);
+                                  });
+                                },
+                                items:
+                                    ['Nam', 'Nữ', 'Khác'].map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 16.0),
+
+                      // Chiều cao và cân nặng
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _heightController,
+                              decoration: InputDecoration(
+                                labelText: 'Chiều cao (cm)',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                prefixIcon: Icon(Icons.height),
+                                suffixText: 'cm',
+                              ),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                          SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _weightController,
+                              decoration: InputDecoration(
+                                labelText: 'Cân nặng (kg)',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                prefixIcon: Icon(Icons.line_weight),
+                                suffixText: 'kg',
+                              ),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 24.0),
+
+                      // Nút lưu thông tin
+                      Container(
+                        width: double.infinity,
+                        height: 50.0,
+                        child: ElevatedButton(
+                          onPressed: _saveProfile,
+                          child: Text(
+                            'Lưu thông tin',
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 }

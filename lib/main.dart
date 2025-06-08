@@ -10,7 +10,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Khởi tạo định dạng ngày tháng cho locale tiếng Việt
   await initializeDateFormatting('vi_VN', null);
 
   runApp(
